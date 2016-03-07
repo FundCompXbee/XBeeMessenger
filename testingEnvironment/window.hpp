@@ -4,7 +4,7 @@
 class Window {
 public:
   Window();
-  Window(int h, int w, int y, int x, int printy, int printx);
+  Window(int h, int w, int y, int x, int bprinty, int bprintx);
   operator WINDOW*();
   void refresh();
   void beginPrint(const std::string&);
@@ -13,6 +13,7 @@ public:
   void clear();
 private:
   WINDOW* ptr;
+  int bprinty, bprintx;
   int printy, printx;
   int maxy, maxx;
 };

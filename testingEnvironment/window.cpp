@@ -4,11 +4,13 @@ Window::Window() {
   ptr = initscr();
 }
 
-Window::Window(int h, int w, int y, int x, int printy, int printx) :
-  printy(printy),
-  printx(printx),
+Window::Window(int h, int w, int y, int x, int bprinty, int bprintx) :
+  bprinty(bprinty),
+  bprintx(bprintx),
+  printy(bprinty),
+  printx(bprintx),
   maxy(h - 4),
-  maxx(w - 4)
+  maxx(w - 6)
 {
   ptr = newwin(h, w, y, x);
   ::box(ptr, 0, 0);
@@ -36,10 +38,24 @@ std::string Window::getInput() {
 void Window::clear() {
   werase(ptr);
   box(ptr, 0, 0);
+  printx = bprintx;
+  printy = bprinty;
 }
 
 void Window::print(const std::string& str) {
-  mvwprintw(ptr, printy, printx, "%s", str.c_str());
+  wmove(ptr, printy, printx);
+  int count{0};
+  for (char letter : str) {
+    if (count >= maxx || letter == '\n') {
+      ++printy;
+      wmove(ptr, printy, printx);
+      count = 0;
+    }
+    else {
+      waddch(ptr, letter);
+      ++count;
+    }
+  }
   refresh();
   ++printy;
 }
