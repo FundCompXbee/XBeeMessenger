@@ -1,0 +1,17 @@
+/opt/sonic-pi/app/server/vendor/rouge/lib/rouge/demos/json
+/opt/sonic-pi/app/server/vendor/activesupport/lib/active_support/json
+/usr/include/jsoncpp/json
+/usr/lib/pypy-upstream/lib-python/2.7/json
+/usr/lib/python3.4/json
+/usr/lib/ruby/2.1.0/json
+/usr/lib/ruby/2.1.0/psych/json
+/usr/lib/ruby/1.9.1/json
+/usr/lib/ruby/1.9.1/psych/json
+/usr/lib/ruby/1.9.1/arm-linux-eabihf/json
+/usr/lib/python2.7/json
+/usr/lib/node_modules/node-red/node_modules/fs-extra/lib/json
+/usr/lib/arm-linux-gnueabihf/ruby/2.1.0/json
+/home/pi/jsoncpp/include/json
+/home/pi/jsoncpp/dist/json
+/home/pi/XBeeMessenger/Pi/jsoncpp/include/json
+/home/pi/XBeeMessenger/Pi/jsoncpp/dist/json
