@@ -7,9 +7,7 @@ public:
   TUI();
   ~TUI();
   void start();
-  //std::string getInput();
   void setInputPrompt(const std::string&);
-  //void printOutput();
   int getchar();
   void refresh();
   std::string getInput();

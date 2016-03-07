@@ -40,5 +40,6 @@ void Window::clear() {
 
 void Window::print(const std::string& str) {
   mvwprintw(ptr, printy, printx, "%s", str.c_str());
+  refresh();
   ++printy;
 }

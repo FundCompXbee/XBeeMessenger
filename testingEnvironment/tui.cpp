@@ -6,6 +6,7 @@ TUI::TUI() :
   outputWin(LINES - 5, COLS, 0, 0, 2, 3)
 {
   keypad(stdscr, TRUE);
+  leaveok(stdscr, true);
 }
 
 TUI::~TUI() {
@@ -20,7 +21,8 @@ void TUI::setInputPrompt(const std::string& p) {
   prompt = p;
   inputWin.clear();
   inputWin.beginPrint(prompt);
-  refresh();
+  //  refresh();
+  inputWin.refresh();
 }
 
 int TUI::getchar() {
@@ -28,10 +30,10 @@ int TUI::getchar() {
 }
 
 void TUI::refresh() {
-  ::refresh();
+  //  ::refresh();
   inputWin.refresh();
   outputWin.refresh();
-  ::refresh();
+  //  ::refresh();
 }
 
 std::string TUI::getInput() {
