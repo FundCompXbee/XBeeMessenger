@@ -15,7 +15,7 @@ void runServer(int serial);
 int main()
 {
 	// Print welcome message
-	printf("piServer starting...\n);
+	printf("piServer starting...\n");
 
 	// Setup Serial Interface
 	int fd = serialOpen("/dev/ttyAMA0",38400);
