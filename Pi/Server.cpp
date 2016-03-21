@@ -9,7 +9,6 @@
 #include <iostream>
 #include "Server.h"
 #include <wiringSerial.h>
-#include <iostream>
 
 using namespace std;
 
@@ -73,6 +72,8 @@ int Server::setupSerial()
         cout << "Error opening serial port" << endl;
         return 1;
     }
+    
+    return 0;
 }
 
 void Server::closeSerial()
