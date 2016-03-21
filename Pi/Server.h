@@ -17,7 +17,10 @@ private:
     // Data Members
     int serial;
     int baud;
+    int command;
+    int verbose;
     // Helper Funcitons
-    void setupSerial();
+    int setupSerial();
     void closeSerial();
+    void runCommand();
 };
