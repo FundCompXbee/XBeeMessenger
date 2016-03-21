@@ -9,15 +9,17 @@
 #include <iostream>
 #include "Server.h"
 
+using namespace std;
+
 #define BAUD_RATE 38400
 
 int main()
 {
     // Create Server
-    cout << "Opening Pi Server"
+    cout << "Opening Pi Server";
     Server s(BAUD_RATE);
     
     // Run Server
-    cout << "Running Pi Server"
-    s.runServer;
+    cout << "Running Pi Server";
+    s.runServer();
 }

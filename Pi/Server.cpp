@@ -9,15 +9,19 @@
 #include <iostream>
 #include "Server.h"
 #include <wiringSerial.h>
+#include <iostream>
+
+using namespace std;
 
 #define ESCAPE_CHAR         '+'
 #define NEW_MESSAGE         'M'
 #define OVER                'O'
 #define GET_NODES           'N'
 
-Server::Server(int baud)
+Server::Server(int baud, int vb)
 {
-    setupSerial()
+    setupSerial();
+    verbose = vb;
 }
 
 Server::~Server()
@@ -73,7 +77,7 @@ void Server::closeSerial()
     serialClose(serial);
 }
 
-void runCommand()
+void Server::runCommand()
 {
     // Choose what to do based on command
     switch (command)
@@ -84,10 +88,12 @@ void runCommand()
             // Convert JSON object to message object
             // Save Message Object
             // Send Message to all clients
+            cout << "MESSAGE RECEIVED" << endl;
             break;
         case GET_NODES:
             // Gather & package nodes
             // Send nodes
+            cout << "SENDING NODE INFORMATION" << endl;
             break;
         default:
             cout << "Unknown command" << endl;

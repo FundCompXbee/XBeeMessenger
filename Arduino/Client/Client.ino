@@ -1,69 +1,32 @@
-/*****************************************************************
+/*************************************************
+ * Student: Aaron Crawfis
+ * netID: acrawfis
+ * Date: 02 March 2016
+ * File: Client.ino
+ * Purpose: Bridge the Xbee with the computer's
+ * serial interface. Simply bridge data
+ ************************************************/
 
-
-*****************************************************************/
-
-// Libraries
 #include <SoftwareSerial.h>
 
-// Constants
-#define COMMAND_CHAR  '+'
-#define BAUD_RATE     38400
-#define S_READY       'Y'
-#define S_BUSY        'N'
+#define BAUD_RATE
 
-// Create Objects
+// Initialize Software Serial
 SoftwareSerial XBee(2, 3);
 
-// Variables
-char rChar;
-bool canWrite = false;
-
-// Function Prototypes
-void runCommand();
-void readCommand();
-
-// Setup - Run once at startup
 void setup()
 {
-  // Initialize Serial Interfaces
+  // Begin XBee Communication
   XBee.begin(BAUD_RATE);
+  // Begin Serial Communication
   Serial.begin(BAUD_RATE);
 }
 
 void loop()
 {
-  if (Serial.available())
-  { 
-    
-  }
-  
-  if (XBee.available())
-  {
-    rChar = XBee.read();
-    if (rChar == COMMAND_CHAR) readCommand();
-  }
-}
-
-void runCommand()
-{
-  
-}
-
-void readCommand()
-{
-  rChar = XBee.read();
-  switch (rChar)
-  {
-    case S_READY:
-      canWrite = true;
-      break;
-    case S_BUSY:
-      canWrite = false;
-      break;
-    default:
-      Serial.println("Error. Not a valid command");
-      break;
-  }
+  // Send data if available
+  if (Serial.available()) XBee.write(Serial.read());
+  // Receive data if available
+  if (XBee.available()) Serial.write(XBee.read());
 }
 
