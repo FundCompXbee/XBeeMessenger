@@ -37,24 +37,25 @@ void Server::runServer()
     while(1)
     {
         // Wait for data to be available
-        while(serialDataAvail(serial) == 0);
-        
-        // Check if the escape character is available
-        if (serialGetchar(serial) == ESCAPE_CHAR)
+        if(serialDataAvail(serial) > 0)
         {
-            // Get the command
-            command = serialGetchar(serial);
-            // Run the command
-            if (verbose) cout << "Running command: " << command << endl;
-            runCommand();
+            // Check if the escape character is available
+            if (serialGetchar(serial) == ESCAPE_CHAR)
+            {
+                // Get the command
+                command = serialGetchar(serial);
+                // Run the command
+                if (verbose) cout << "Running command: " << command << endl;
+                runCommand();
+            }
+            // Bad character. Loop around
+            else
+            {
+                if (verbose) cout << "Bad character" << endl;
+                continue;
+            }
+
         }
-        // Bad character. Loop around
-        else
-        {
-            if (verbose) cout << "Bad character" << endl;
-            continue;
-        }
-    }
 }
 
 /**********************************************/
