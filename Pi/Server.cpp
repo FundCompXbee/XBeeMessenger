@@ -18,10 +18,12 @@ using namespace std;
 #define OVER                'O'
 #define GET_NODES           'N'
 
-Server::Server(int baud, int vb)
+Server::Server(int bd, int vb)
 {
-    setupSerial();
+    baud = bd;
     verbose = vb;
+    
+    setupSerial();
 }
 
 Server::~Server()

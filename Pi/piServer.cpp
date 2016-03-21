@@ -16,10 +16,10 @@ using namespace std;
 int main()
 {
     // Create Server
-    cout << "Opening Pi Server";
-    Server s(BAUD_RATE);
+    cout << "Opening Pi Server" << endl;
+    Server s(BAUD_RATE, 1);
     
     // Run Server
-    cout << "Running Pi Server";
+    cout << "Running Pi Server" << endl;
     s.runServer();
 }

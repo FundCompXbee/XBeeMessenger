@@ -9,7 +9,7 @@
 class Server {
 public:
     // Constructor & Destructor
-    Server(int baud = 38400, int vb = 1);
+    Server(int baud, int vb);
     ~Server();
     // Destructor
     void runServer();
