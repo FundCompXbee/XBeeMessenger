@@ -17,20 +17,32 @@ using namespace std;
 #define OVER                'O'
 #define GET_NODES           'N'
 
+// Constructor
+
 Server::Server(int bd, int vb)
 {
+    // Set variables
     baud = bd;
     verbose = vb;
     
+    // Open the serial connection
     setupSerial();
 }
 
+// Destructor
+
 Server::~Server()
 {
+    // Close the serial connection
     closeSerial();
 }
 
-/**********************************************/
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
 
 void Server::runServer()
 {
@@ -60,7 +72,12 @@ void Server::runServer()
     }
 }
 
-/**********************************************/
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
 
 int Server::setupSerial()
 {
@@ -76,33 +93,106 @@ int Server::setupSerial()
     return 0;
 }
 
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
+
 void Server::closeSerial()
 {
     // Close serial instance
     serialClose(serial);
+    // Print Message
+    if (verbose) cout << "Serial closed" << endl;
 }
+
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
 
 void Server::runCommand()
 {
+    // Variables
+    Message *M;
+    
     // Choose what to do based on command
     switch (command)
     {
         case NEW_MESSAGE:
-            // Convert buffer to string
-            // Convert string to JSON object
-            // Convert JSON object to message object
-            // Save Message Object
-            // Send Message to all clients
-            cout << "MESSAGE RECEIVED" << endl;
+            M = receiveMessage();           // Get Message
+            logMessage(M);                  // Log Message
+            sendMessage(M);                 // Send Message back out
+            
+            // Print message
+            if (verbose) cout << "MESSAGE RECEIVED" << endl;
             break;
         case GET_NODES:
-            // Gather & package nodes
-            // Send nodes
-            cout << "SENDING NODE INFORMATION" << endl;
+            sendNodes();                    // Send Nodes
+            
+            // Print message
+            if (verbose) cout << "SENDING NODE INFORMATION" << endl;
             break;
         default:
-            cout << "Unknown command" << endl;
+            // Print message
+            if (verbose) cout << "Unknown command" << endl;
             break;
     }
+    
+}
+
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
+
+void Server::sendMessage(Message *M)
+{
+    
+    
+    // Print message
+    if (verbose) cout << "Sending message" << endl;
+    // Delete the message. No longer needed.
+    delete M;
+}
+
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
+
+Message * Server::receiveMessage()
+{
+    // Create new message
+    Message *M = new Message;
+    
+    
+    
+    // Print message
+    if (verbose) cout << "Message Received" << endl;
+    // Return the message
+    return M;
+}
+
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
+
+void Server::logMessage(Message *M)
+{
+    
+    // Print message
+    if (verbose) cout << "Message Logged" << endl;
 }
 

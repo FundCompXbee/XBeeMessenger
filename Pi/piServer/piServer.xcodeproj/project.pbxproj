@@ -69,10 +69,10 @@
 				9382F09B1CA09E0000CFA8ED /* piServer.cpp */,
 				9382F09D1CA09E0000CFA8ED /* Server.h */,
 				9382F09C1CA09E0000CFA8ED /* Server.cpp */,
-				9382F0981CA09E0000CFA8ED /* Message.h */,
-				9382F0971CA09E0000CFA8ED /* Message.cpp */,
 				9382F09A1CA09E0000CFA8ED /* Packet.h */,
 				9382F0991CA09E0000CFA8ED /* Packet.cpp */,
+				9382F0981CA09E0000CFA8ED /* Message.h */,
+				9382F0971CA09E0000CFA8ED /* Message.cpp */,
 			);
 			path = piServer;
 			sourceTree = "<group>";

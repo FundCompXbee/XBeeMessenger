@@ -6,9 +6,12 @@
  * File: Server.h
  ************************************/
 
+#include "Message.h"
+
 class Server {
 public:
     // Constructor & Destructor
+    Server();
     Server(int baud, int vb);
     ~Server();
     // Destructor
@@ -23,4 +26,8 @@ private:
     int setupSerial();
     void closeSerial();
     void runCommand();
+    void sendMessage(Message *M);
+    Message * receiveMessage();
+    void logMessage(Message *M);
+    void sendNodes();
 };
