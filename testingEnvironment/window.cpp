@@ -11,6 +11,7 @@ Window::Window(int h, int w, int y, int x, int printy, int printx) :
   maxx(w - 4)
 {
   ptr = newwin(h, w, y, x);
+  ::box(ptr, 0, 0);
 }
 
 Window::operator WINDOW*() {
@@ -21,10 +22,6 @@ void Window::refresh() {
   wrefresh(ptr);
 }
 
-void Window::box() {
-  ::box(ptr,0,0);
-}
-
 void Window::beginPrint(const std::string& str) {
   mvwprintw(ptr, printy, printx, "%s", str.c_str());
 }
@@ -32,17 +29,16 @@ void Window::beginPrint(const std::string& str) {
 std::string Window::getInput() {
   char* str = new char[maxx];
   wgetstr(ptr, str);
+  refresh();
   return std::string(str);
 }
 
 void Window::clear() {
-  for (int y{1}; y <= maxy - 1; ++y) {
-    for (int x{1}; x <= maxy - 1; ++x) {
-      mvwaddch(ptr, y, x, ' ');
-    }
-  }
+  werase(ptr);
+  box(ptr, 0, 0);
 }
 
 void Window::print(const std::string& str) {
   mvwprintw(ptr, printy, printx, "%s", str.c_str());
+  ++printy;
 }

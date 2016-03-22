@@ -7,7 +7,6 @@ public:
   Window(int h, int w, int y, int x, int printy, int printx);
   operator WINDOW*();
   void refresh();
-  void box();
   void beginPrint(const std::string&);
   std::string getInput();
   void print(const std::string&);

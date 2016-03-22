@@ -15,6 +15,7 @@ public:
   std::string getInput();
   void output(const std::string&);
 private:
+  std::string prompt;
   Window stdscr;
   Window inputWin;
   Window outputWin;
