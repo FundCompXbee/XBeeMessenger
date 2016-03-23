@@ -2,6 +2,9 @@
 #include <string>
 #include "window.hpp"
 
+#ifndef TUI_H
+#define TUI_H
+
 class TUI {
 public:
   TUI();
@@ -20,3 +23,5 @@ private:
   Window outputWin;
   Window displayWin;
 };
+
+#endif

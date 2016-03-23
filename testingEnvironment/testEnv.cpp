@@ -4,8 +4,7 @@
 
 std::vector<std::string> MessageFields {"destination", "source", "timestamp", "content"};
 
-int main()
-{
+int main() {
   Json::Value root;
   TUI ui;
   ui.start();

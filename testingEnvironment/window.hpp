@@ -1,6 +1,9 @@
 #include <ncurses.h>
 #include <string>
 
+#ifndef WINDOW_H
+#define WINDOW_H
+
 class Window {
 public:
   Window();
@@ -17,3 +20,5 @@ private:
   int printy, printx;
   int maxy, maxx;
 };
+
+#endif
