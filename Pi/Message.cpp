@@ -7,6 +7,7 @@
  ************************************/
 
 #include "Message.h"
+#include "/usr/include/jsoncpp/json/json.h"
 
 Message::Message()
 {

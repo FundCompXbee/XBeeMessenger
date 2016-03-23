@@ -7,20 +7,23 @@
  ************************************/
 
 #include <string>
+#include "/usr/include/jsoncpp/json/json.h"
 
 using namespace std;
 
 class Packet {
 public:
     Packet();
-    ~Packet();
     void setJSONstr(string JSON);
     void setSource(int src);
     void setDestination(int dest);
+    void createTemplateJSON();
+    void printPacket();
+    void setSTRjson(Json::Value jObj);
 private:
     string JSONstr;
     int destination;
     int source;
     int timeStamp;
-    
+    Json::Value JSONobj;    
 };
