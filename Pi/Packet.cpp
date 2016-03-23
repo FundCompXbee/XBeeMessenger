@@ -1,5 +1,4 @@
-/***********************************
- * Student: Aaron Crawfis
+/*	    Aaron Crawfis
 	    Jorge Diaz
  * netID: acrawfis
 	  jdiazort
@@ -14,6 +13,10 @@ Packet::Packet()
 {
     createTemplateJSON();   
     setSTRjson(JSONobj);
+}
+
+string Packet::getJSONstr(){
+    return JSONstr;
 }
 
 void Packet::createTemplateJSON() {

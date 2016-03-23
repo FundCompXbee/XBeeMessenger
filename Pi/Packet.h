@@ -20,8 +20,11 @@ public:
     void createTemplateJSON();
     void printPacket();
     void setSTRjson(Json::Value jObj);
+    string getJSONstr();
+    //string getCleanJSONstr();
 private:
     string JSONstr;
+    //string cleanJSONstr;
     int destination;
     int source;
     int timeStamp;
