@@ -7,6 +7,7 @@
  ************************************/
 
 #include "Message.h"
+#include "Packet.h"
 
 class Server {
 public:
@@ -26,8 +27,9 @@ private:
     int setupSerial();
     void closeSerial();
     void runCommand();
-    void sendMessage(Message *M);
-    Message * receiveMessage();
-    void logMessage(Message *M);
+    void sendMessage(string message);
+    string receiveMessage();
+    void logMessage(string message);
     void sendNodes();
+    int pollDevices();
 };

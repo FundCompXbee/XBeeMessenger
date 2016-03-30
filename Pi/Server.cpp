@@ -119,14 +119,15 @@ void Server::runCommand()
 {
     // Variables
     Message *M;
+    string message;
     
     // Choose what to do based on command
     switch (command)
     {
         case NEW_MESSAGE:
-            M = receiveMessage();           // Get Message
-            logMessage(M);                  // Log Message
-            sendMessage(M);                 // Send Message back out
+            message = receiveMessage();           // Get Message
+            logMessage(message);                  // Log Message
+            sendMessage(message);                 // Send Message back out
             
             // Print message
             if (verbose) cout << "MESSAGE RECEIVED" << endl;
@@ -152,14 +153,13 @@ void Server::runCommand()
  * Outputs:
  **************************************************/
 
-void Server::sendMessage(Message *M)
+void Server::sendMessage(string message)
 {
-    
+    // Send the message
+    serialPuts(serial, message);
     
     // Print message
     if (verbose) cout << "Sending message" << endl;
-    // Delete the message. No longer needed.
-    delete M;
 }
 
 /**************************************************
@@ -169,17 +169,36 @@ void Server::sendMessage(Message *M)
  * Outputs:
  **************************************************/
 
-Message * Server::receiveMessage()
+string Server::receiveMessage()
 {
+    // Variables
+    char temp;
+    bool keepReading = true;
+    string inJSON = "";
+    
     // Create new message
     Message *M = new Message;
     
+    while (true)
+    {
+        // Read from serial
+        temp = serialGetchar(serial);
+        
+        // Escape character received
+        if (temp == ESCAPE_CHAR)
+        {
+            temp = serialGetchar(serial);
+            if (temp == OVER) break;
+        }
+        
+        // Append to string
+        inJSON += temp;
+    }
     
-    
-    // Print message
+    // Print status message
     if (verbose) cout << "Message Received" << endl;
     // Return the message
-    return M;
+    return inJSON;
 }
 
 /**************************************************
@@ -189,10 +208,22 @@ Message * Server::receiveMessage()
  * Outputs:
  **************************************************/
 
-void Server::logMessage(Message *M)
+void Server::logMessage(string message)
 {
     
     // Print message
     if (verbose) cout << "Message Logged" << endl;
+}
+
+/**************************************************
+ * Function:
+ * Purpose:
+ * Inputs:
+ * Outputs:
+ **************************************************/
+
+int Server::pollDevices()
+{
+    
 }
 

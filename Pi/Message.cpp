@@ -23,3 +23,13 @@ void Message::packageMessageIntoJSON()
 {
     
 }
+
+void Message::setMessage(string val)
+{
+    messageContent = val;
+}
+
+string Message::getMessage()
+{
+    return messageContent;
+}

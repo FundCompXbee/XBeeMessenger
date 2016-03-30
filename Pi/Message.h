@@ -7,6 +7,7 @@
  ************************************/
 
 #include "Packet.h"
+#include <string>
 
 class Message: public Packet
 {
@@ -16,6 +17,8 @@ public:
     Message(string mesg);
     
     // Member Functions
+    void setMessage(string val);
+    string getMessage();
     void packageMessageIntoJSON();
 private:
     // Data Members
