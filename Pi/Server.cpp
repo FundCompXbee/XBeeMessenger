@@ -126,7 +126,8 @@ void Server::runCommand()
     {
         case NEW_MESSAGE:
             message = receiveMessage();           // Get Message
-            logMessage(message);                  // Log Message
+       	    cout << message << endl;
+	    logMessage(message);                  // Log Message
             sendMessage(message);                 // Send Message back out
             
             // Print message
@@ -156,7 +157,7 @@ void Server::runCommand()
 void Server::sendMessage(string message)
 {
     // Send the message
-    serialPuts(serial, message);
+    serialPuts(serial, message.c_str());
     
     // Print message
     if (verbose) cout << "Sending message" << endl;
@@ -179,7 +180,7 @@ string Server::receiveMessage()
     // Create new message
     Message *M = new Message;
     
-    while (true)
+    while (keepReading)
     {
         // Read from serial
         temp = serialGetchar(serial);
@@ -224,6 +225,11 @@ void Server::logMessage(string message)
 
 int Server::pollDevices()
 {
-    
+    return 0;
+}
+
+void Server::sendNodes()
+{
+
 }
 
