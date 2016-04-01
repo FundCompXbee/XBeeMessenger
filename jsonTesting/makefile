@@ -1,7 +1,7 @@
 
 
-EXE=main.exe
-OBJS=Message.o Packet.o main.o
+EXE=testJSON.exe
+OBJS=testJSON.o
 
 CXX=g++
 XFLAGS=-W -Wall -Wextra -Werror 

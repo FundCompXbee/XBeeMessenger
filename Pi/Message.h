@@ -1,26 +1,31 @@
 /***********************************
  * Student: Aaron Crawfis
  * netID: acrawfis
- * Date: 15 March 2016
+	  jdiazort
+ * Date: 1 April 2016
  * Class: CSE 20212 Final Project
  * File: Message.h
  ************************************/
+#ifndef MESSAGE_H
+#define MESSAGE_H
 
 #include "Packet.h"
 #include <string>
 
 class Message: public Packet
 {
-public:
+  public:
     // Constructors
     Message();
-    Message(string mesg);
+    Message(string msg);
     
     // Member Functions
     void setMessage(string val);
     string getMessage();
     void packageMessageIntoJSON();
-private:
+  private:
     // Data Members
-    string messageContent;
+    string messageContent;    
 };
+
+#endif

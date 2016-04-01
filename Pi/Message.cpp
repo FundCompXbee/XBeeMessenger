@@ -1,7 +1,8 @@
-/***********************************
+/**********************************
  * Student: Aaron Crawfis
  * netID: acrawfis
- * Date: 15 March 2016
+	  jdiazort
+ * Date: 1 March 2016
  * Class: CSE 20212 Final Project
  * File: Message.cpp
  ************************************/
@@ -10,23 +11,30 @@
 #include "/usr/include/jsoncpp/json/json.h"
 
 Message::Message()
+	:Packet()
 {
-    
+    messageContent = "";
+    setField("content",messageContent);  
 }
 
-Message::Message(string mesg)
+Message::Message(string msg)
+	:Packet()
 {
-    
+    messageContent = msg;
+    setField("content",messageContent);
 }
 
+/*
 void Message::packageMessageIntoJSON()
 {
     
 }
+*/
 
 void Message::setMessage(string val)
 {
     messageContent = val;
+    setField("content",messageContent);
 }
 
 string Message::getMessage()

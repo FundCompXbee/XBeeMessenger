@@ -25,7 +25,6 @@ int main()
   if (parsingSuccessful) {
      std::cout << styledWriter.write(parsedFromString) << std::endl;
   }
-    }
-  }
+
   return 0;
 }

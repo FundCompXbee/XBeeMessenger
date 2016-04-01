@@ -8,32 +8,52 @@
  ************************************/
 
 #include "Packet.h"
+#include <time.h>
 
 Packet::Packet()
 {
-    createTemplateJSON();   
-    setSTRjson(JSONobj);
+   createTemplateJSON();   
 }
+/*
+Packet::Packet(str JSONstream)
+{
+    JSONstr = JSONstram;
+    setJSONstr(JSONstr);    
+    cout << JSONstream << " \n was stored as a JSON. " << endl;
+}
+*/
 
-string Packet::getJSONstr(){
+string Packet::getJSONstr()
+{
     return JSONstr;
 }
 
-void Packet::createTemplateJSON() {
-    // defining temporary values for test
-    string command = "+key";  // command is a placeholder for command values for communcation
-    int source = 1; 	// # assigned to sender
-    Json::Value destinations; 
-    destinations.append(2);
-    destinations.append(3); 
-    string message = "Hello World, this is just a test run.";
-    string timestamp = "03/23/2016 15:30:00.0.0";
+Json::Value Packet::getJSONobj() {
+    return JSONobj;
+}
 
-    JSONobj[command] = command;
+void Packet::setField(string field, string value) {
+    JSONobj[field]  = value;
+    setSTRjson(JSONobj);
+}
+
+void Packet::createTemplateJSON() 
+{
+    // defining temporary values for test
+    command = "+key";  // command is a placeholder for command values for communcation
+    source = 1; 	// # assigned to sender
+    Json::Value destinations; 
+    struct tm * timeinfo;
+    time(&timestamp);
+    timeinfo = localtime(&timestamp);
+
+    JSONobj["command"] = command;
     JSONobj["source"] = source;
+    JSONobj["content"] = "";
     JSONobj["destinations"] = destinations;
-    JSONobj["message"] = message;
-    JSONobj["timestamp"] = timestamp;
+    JSONobj["timestamp"] = asctime(timeinfo);
+
+    setSTRjson(JSONobj);
 
 }
 
@@ -57,7 +77,6 @@ void Packet::setSTRjson(Json::Value jObj)
 
 void Packet::setDestination(int dest)
 {
-    destination = dest;
     JSONobj["destinations"].append(dest);
 }
 
@@ -71,3 +90,5 @@ void Packet::printPacket() {
     Json::StyledWriter styledWriter;
     cout << styledWriter.write(JSONobj);
 }
+
+
