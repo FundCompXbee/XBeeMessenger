@@ -13,6 +13,7 @@
 using namespace std;
 
 #define ESCAPE_CHAR         '+'
+#define START               'S'
 #define NEW_MESSAGE         'M'
 #define OVER                'O'
 #define GET_NODES           'N'
@@ -118,26 +119,18 @@ void Server::closeSerial()
 void Server::runCommand()
 {
     // Variables
-    Message *M;
     string message;
     
     // Choose what to do based on command
     switch (command)
     {
-        case NEW_MESSAGE:
+        case START:
             message = receiveMessage();           // Get Message
        	    cout << message << endl;
-	    logMessage(message);                  // Log Message
+            logMessage(message);                  // Log Message
             sendMessage(message);                 // Send Message back out
-            
             // Print message
             if (verbose) cout << "MESSAGE RECEIVED" << endl;
-            break;
-        case GET_NODES:
-            sendNodes();                    // Send Nodes
-            
-            // Print message
-            if (verbose) cout << "SENDING NODE INFORMATION" << endl;
             break;
         default:
             // Print message
