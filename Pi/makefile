@@ -1,14 +1,12 @@
-
-
 EXE=main.exe
-OBJS=Message.o Packet.o main.o
+OBJS=Message.o Packet.o piServer.o
 
 CXX=g++
 XFLAGS=-W -Wall -Wextra -Werror 
 
 LINKER=g++
 LINKERFLAGS=-std=gnu++11
-LINKS=-ljsoncpp
+LINKS=-ljsoncpp -lwiringPi
 
 all: $(OBJS) $(EXE)
 
