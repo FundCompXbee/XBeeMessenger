@@ -1,5 +1,5 @@
 EXE=main.exe
-OBJS=Message.o Packet.o piServer.o
+OBJS=Message.o Packet.o piServer.o Server.o
 
 CXX=g++
 XFLAGS=-W -Wall -Wextra -Werror 
@@ -17,4 +17,4 @@ all: $(OBJS) $(EXE)
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm -f *.o main
+	rm -f *.o main.exe
