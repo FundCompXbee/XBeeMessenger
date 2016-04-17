@@ -23,6 +23,8 @@ class Message: public Packet
     void setMessage(string val);
     string getMessage();
     void packageMessageIntoJSON();
+    
+    
   private:
     // Data Members
     string messageContent;    

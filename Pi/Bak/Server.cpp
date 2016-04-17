@@ -119,18 +119,26 @@ void Server::closeSerial()
 void Server::runCommand()
 {
     // Variables
+    Message *M;
     string message;
     
     // Choose what to do based on command
     switch (command)
     {
-        case START:
+        case NEW_MESSAGE:
             message = receiveMessage();           // Get Message
        	    cout << message << endl;
-            logMessage(message);                  // Log Message
+	    logMessage(message);                  // Log Message
             sendMessage(message);                 // Send Message back out
+            
             // Print message
             if (verbose) cout << "MESSAGE RECEIVED" << endl;
+            break;
+        case GET_NODES:
+            sendNodes();                    // Send Nodes
+            
+            // Print message
+            if (verbose) cout << "SENDING NODE INFORMATION" << endl;
             break;
         default:
             // Print message
@@ -202,13 +210,8 @@ string Server::receiveMessage()
  * Outputs:
  **************************************************/
 
-void Server::handleMessage(string message)
+void Server::logMessage(string message)
 {
-    // Convert to JSON
-    Message M;
-    M.setMessage(message);
-    
-    cout << M.getJSONstr() << endl;
     
     // Print message
     if (verbose) cout << "Message Logged" << endl;
