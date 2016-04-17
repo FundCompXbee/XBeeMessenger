@@ -127,7 +127,7 @@ void Server::runCommand()
         case START:
             message = receiveMessage();           // Get Message
        	    cout << message << endl;
-            logMessage(message);                  // Log Message
+            handleMessage(message);                  // Log Message
             sendMessage(message);                 // Send Message back out
             // Print message
             if (verbose) cout << "MESSAGE RECEIVED" << endl;
