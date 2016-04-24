@@ -1,7 +1,9 @@
+//This is the main driver file for the Qt Messenger GUI
+//It instantiates an object of the Messenger class,
+//and then displays the GUI
+
 #include "messenger.h"
 #include <QApplication>
-#include <iostream>
-
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +11,6 @@ int main(int argc, char *argv[])
     Messenger w;
 
     w.show();
-
 
     return a.exec();
 }
