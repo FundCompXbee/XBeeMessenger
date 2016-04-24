@@ -29,7 +29,7 @@ private:
     void runCommand();
     void sendMessage(string message);
     string receiveMessage();
-    void handleMessage(string message);
+    void logMessage(string message);
     void sendNodes();
     int pollDevices();
 };
