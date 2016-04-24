@@ -12,6 +12,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QColor>
 #include <QAbstractSlider>
+#include <QListWidget>
+#include <QListWidgetItem>
 
 namespace Ui {
 class Messenger;
@@ -33,15 +35,18 @@ private slots:
 
     void on_actionChange_Name_triggered();
 
-    void on_startButton_clicked();
+    void on_channelsListWidget_clicked(const QModelIndex &index);
+
+    void on_actionJoin_Channel_triggered();
 
 private:
     Ui::Messenger *ui;
     QString msgString;
     QString username;
+    QString currentChannel;
 };
 
 #endif // MESSENGER_H
 
 
-//void recFunction();
+
