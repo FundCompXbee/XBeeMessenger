@@ -149,6 +149,7 @@ public:
         messageView->setFont(font1);
         messageView->setLineWidth(2);
         messageView->setMidLineWidth(2);
+        messageView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         messageView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         helpTextBrowser = new QTextBrowser(centralWidget);
         helpTextBrowser->setObjectName(QStringLiteral("helpTextBrowser"));

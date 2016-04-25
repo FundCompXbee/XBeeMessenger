@@ -98,10 +98,12 @@ void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 {
     currentChannel = ui->channelsListWidget->selectedItems()[0]->text();
     ui->messageView->setTextColor(QColor("#DB92DD"));
-    ui->messageView->textCursor().insertText("_____________________________________________________________________\n");
+    ui->messageView->textCursor().insertText("____________________________________________________________________\n");
     ui->messageView->textCursor().insertText("Channel: ");
     ui->messageView->textCursor().insertText(currentChannel);
     ui->messageView->textCursor().insertText("\n\n");
+    //Make sure that the message view scrolls to the bottom
+    ui->messageView->ensureCursorVisible();
 }
 
 //Change name command

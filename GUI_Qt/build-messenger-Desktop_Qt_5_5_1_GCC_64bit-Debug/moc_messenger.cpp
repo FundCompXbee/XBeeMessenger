@@ -32,15 +32,15 @@ static const qt_meta_stringdata_Messenger_t qt_meta_stringdata_Messenger = {
 QT_MOC_LITERAL(0, 0, 9), // "Messenger"
 QT_MOC_LITERAL(1, 10, 21), // "on_sendButton_clicked"
 QT_MOC_LITERAL(2, 32, 0), // ""
-QT_MOC_LITERAL(3, 33, 30), // "on_actionChange_Name_triggered"
-QT_MOC_LITERAL(4, 64, 29), // "on_channelsListWidget_clicked"
-QT_MOC_LITERAL(5, 94, 5), // "index"
+QT_MOC_LITERAL(3, 33, 29), // "on_channelsListWidget_clicked"
+QT_MOC_LITERAL(4, 63, 5), // "index"
+QT_MOC_LITERAL(5, 69, 30), // "on_actionChange_Name_triggered"
 QT_MOC_LITERAL(6, 100, 31) // "on_actionJoin_Channel_triggered"
 
     },
     "Messenger\0on_sendButton_clicked\0\0"
-    "on_actionChange_Name_triggered\0"
     "on_channelsListWidget_clicked\0index\0"
+    "on_actionChange_Name_triggered\0"
     "on_actionJoin_Channel_triggered"
 };
 #undef QT_MOC_LITERAL
@@ -60,14 +60,14 @@ static const uint qt_meta_data_Messenger[] = {
 
  // slots: name, argc, parameters, tag, flags
        1,    0,   34,    2, 0x08 /* Private */,
-       3,    0,   35,    2, 0x08 /* Private */,
-       4,    1,   36,    2, 0x08 /* Private */,
+       3,    1,   35,    2, 0x08 /* Private */,
+       5,    0,   38,    2, 0x08 /* Private */,
        6,    0,   39,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
+    QMetaType::Void, QMetaType::QModelIndex,    4,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QModelIndex,    5,
     QMetaType::Void,
 
        0        // eod
@@ -80,8 +80,8 @@ void Messenger::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->on_sendButton_clicked(); break;
-        case 1: _t->on_actionChange_Name_triggered(); break;
-        case 2: _t->on_channelsListWidget_clicked((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 1: _t->on_channelsListWidget_clicked((*reinterpret_cast< const QModelIndex(*)>(_a[1]))); break;
+        case 2: _t->on_actionChange_Name_triggered(); break;
         case 3: _t->on_actionJoin_Channel_triggered(); break;
         default: ;
         }

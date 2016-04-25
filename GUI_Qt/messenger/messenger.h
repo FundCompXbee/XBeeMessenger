@@ -27,16 +27,12 @@ public:
     explicit Messenger(QWidget *parent = 0);
     ~Messenger();
     std::string get_msgString();
-
     void receiveMessageFunction();
 
 private slots:
     void on_sendButton_clicked();
-
-    void on_actionChange_Name_triggered();
-
     void on_channelsListWidget_clicked(const QModelIndex &index);
-
+    void on_actionChange_Name_triggered();
     void on_actionJoin_Channel_triggered();
 
 private:
