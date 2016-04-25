@@ -7,7 +7,7 @@
 ************************************/
 
 #include <iostream>
-#include "Server.h"
+#include "server.hpp"
 
 using namespace std;
 
@@ -17,9 +17,9 @@ int main()
 {
     // Create Server
     cout << "Opening Pi Server" << endl;
-    Server s(BAUD_RATE, 1);
-    
+    Server s(BAUD_RATE);
+
     // Run Server
     cout << "Running Pi Server" << endl;
-    s.runServer();
+    s.run();
 }

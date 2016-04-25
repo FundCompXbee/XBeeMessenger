@@ -1,20 +1,53 @@
-EXE=main.exe
-OBJS=Message.o Packet.o piServer.o Server.o
+CLIENTEXE=XBeeClient.exe
+CLIENTOBJS=XBeeClient.o serial.o envelope.o client.o
 
-CXX=g++
-XFLAGS=-W -Wall -Wextra -Werror 
+SERVEREXE=XBeeServer.exe
+SERVEROBJS=XBeeServer.o server.o IRCCommandHandler.o serial.o envelope.o user.o channel.o
+
+CXX=g++ -std=gnu++11
+CXXFLAGS=-O3
 
 LINKER=g++
 LINKERFLAGS=-std=gnu++11
-LINKS=-ljsoncpp -lwiringPi
+LINKS=-ljsoncpp -lboost_system -lpthread
 
-all: $(OBJS) $(EXE)
+all: $(CLIENTEXE) $(SERVEREXE)
 
-%.exe: $(OBJS)
-	$(LINKER) $(LINKERFLAGS) $(LINKS) $(OBJS) -o $@ 
+debug: CXXFLAGS=-W -Wall -Wextra -Werror -O0 -ggdb3
+debug: all
 
-%.o: %.cpp
+$(CLIENTEXE): $(CLIENTOBJS)
+	$(LINKER) $(LINKERFLAGS) $(LINKS) $(CLIENTOBJS) -o $@
+
+$(SERVEREXE): $(SERVEROBJS)
+	$(LINKER) $(LINKERFLAGS) $(LINKS) $(SERVEROBJS) -o $@
+
+envelope.o: envelope.cpp envelope.hpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+serial.o: serial.cpp serial.hpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+user.o: user.cpp user.hpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+channel.o: channel.cpp channel.hpp user.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+IRCCommandHandler.o: IRCCommandHandler.cpp IRCCommandHandler.hpp channel.o user.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+server.o: server.cpp server.hpp IRCCommandHandler.o serial.o envelope.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+client.o: client.cpp client.hpp serial.o envelope.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+XBeeClient.o: XBeeClient.cpp client.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+XBeeServer.o: XBeeServer.cpp server.o
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm -f *.o main.exe
+	rm -f *.o *.exe
