@@ -7,15 +7,15 @@
 
 class Channel {
 public:
-  Channel(std::string);
-  std::string getName();
+  Channel(std::string); // constructor, which initializes the name of the channel
+  std::string getName(); // returns name of the channel
   // maybe const ref?
-  void addUser(std::string);
-  void removeUser(std::string);
-  bool hasUser(std::string);
+  void addUser(std::string); // adds name : User key value pair to map of users in the channel
+  void removeUser(std::string); // removes a User from the map
+  bool hasUser(std::string);  // returns true if user key is in users map
 private:
-  std::string name;
-  std::map<std::string, User> users;
+  std::string name; // channel name
+  std::map<std::string, User> users; // map that stores which users are at a given channel
 
 };
 

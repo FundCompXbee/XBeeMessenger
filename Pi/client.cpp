@@ -1,23 +1,24 @@
-#include "client.hpp"
+# // sets delimiter, until which the serial is going to read in order to retrieve messages
+include "client.hpp"
 
-const char Client::delimiter{'~'};
+const char Client::delimiter{'~'}; // sets delimiter, until which the serial is going to read in order to retrieve messages
 
-Client::Client(std::string userName, int baud) :
-  serial("/dev/ttyACM0", baud),
-  userName(userName)
+Client::Client(std::string userName, int baud) : // constructor
+  serial("/dev/ttyACM0", baud),	 	// initializes serial-port
+  userName(userName)			// sets client's userName
 {
   // std::cout << "finished constructing client '" << userName << std::endl;
 }
 
-void Client::setUsername(std::string name) {
-  if (name != "" || name == "server") {
+void Client::setUsername(std::string name) { 	// sets client's userName
+  if (name != "" || name == "server") {		// returns if client already has a userName
     return;
   }
-
   userName = name;
 }
 
-std::set<std::string> Client::getServers() {
+// retrieves the servers on the network by making a ping request and retrieving the server response 
+std::set<std::string> Client::getServers() { 
   // std::cout << "Attempting to get servers" << std::endl;
   // std::cout << "Sending Ping" << std::endl;
   sendExpression("server","PING");
@@ -33,6 +34,7 @@ std::set<std::string> Client::getServers() {
   return servers;
 }
 
+// connects to the server by sending an expressing and changes the serverName associated with the client 
 void Client::connectToServer(std::string server) {
     // std::cout << "Sending a request to '" << server << "' for connection" << std::endl;
   sendExpression("server","CONNECT "+userName);
@@ -58,12 +60,14 @@ void Client::connectToServer(std::string server) {
 //   return channels;
 // }
 
+// adds a channel to the set of channels 
 void Client::joinChannel(std::string channel) {
     // std::cout << "Attempting to join a channel '" << channel << "'" << std::endl;
 //   sendChannelRequest("JOINCHANNEL "+channel+' '+userName);
   channels.insert(channel);
 }
 
+// builds up an Envelope using the parameters and calls sendEnvelope() 
 void Client::sendExpression(std::string destination, std::string expression) {
   // if (destination == "server") {
   //   std::cout << "sending a server request" << std::endl;
@@ -76,6 +80,7 @@ void Client::sendExpression(std::string destination, std::string expression) {
   sendEnvelope(Envelope(serverName, destination, userName, expression));
 }
 
+// calls retrieveEnvelope() to retrieve Enveloped from the serial until the Envelope's destiantion matches that of the client, then returns that Envelope's expression
 std::string Client::retrieveResponse() {
     // std::cout << "Attempting to retrieve a response envelope" << std::endl;
   Envelope response(retrieveEnvelope());
@@ -99,11 +104,13 @@ std::string Client::retrieveResponse() {
 //   sendEnvelope(Envelope(serverName, "server", userName, command));
 // }
 
+// writes envelope in  string fromat alongside delimiter to serial
 void Client::sendEnvelope(Envelope env) {
     // std::cout << "Attempting to send envelope '" << env.toString() << "'" << std::endl;
   serial.write(env.toString()+delimiter);
 }
 
+// reads from serial until the delimiter, and returns an Envelope built from the retrieved string
 Envelope Client::retrieveEnvelope() {
     // std::cout << "Attempting to retrieve an envelope" << std::endl;
   std::string resp(serial.readUntil(delimiter));

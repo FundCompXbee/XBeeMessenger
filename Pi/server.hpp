@@ -11,7 +11,7 @@
 
 class Server {
 public:
-  Server(int baud);
+  Server(int baud); // contructor, initializes serial and gets hostname
   void run();
 private:
   static const char delimiter;
@@ -20,8 +20,8 @@ private:
   IRCCommandHandler IRCHandler;
   Serial serial;
 
-  std::string retrieveSerialData();
-  void broadcastSerialData(std::string);
+  std::string retrieveSerialData(); // retrives string from serial
+  void broadcastSerialData(std::string); // broadcasts message by writing to serial buffer
   std::string verifyRequest(Envelope&);
 };
 

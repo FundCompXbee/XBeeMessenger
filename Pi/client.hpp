@@ -11,30 +11,32 @@
 
 class Client {
 public:
-  Client(std::string, int);
+  Client(std::string, int);  // constructor
 
-  void setUsername(std::string);
-
-  std::set<std::string> getServers();
-  void connectToServer(std::string);
+  void setUsername(std::string); // sets client's userName
+  std::set<std::string> getServers(); // returns the set of servers on the network 
+  void connectToServer(std::string); // connects to the server and changes te serverName
 
   // std::set<std::string> getChannels();
-  void joinChannel(std::string);
+  void joinChannel(std::string); // adds a channel to the list of channels 
 
-  void sendExpression(std::string, std::string);
-  std::string retrieveResponse();
+  void sendExpression(std::string, std::string); // biulds Envelope and sends expression
+  std::string retrieveResponse(); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
+
 private:
-  static const char delimiter;
-  Serial serial;
+  static const char delimiter;  // sets delimiter, until which the serial is going to read in order to retrieve messages
 
-  std::string userName;
+  Serial serial; // creates serial
+
+  std::string userName; 
   std::string serverName;
   std::set<std::string> channels;
 
   // void sendChannelRequest(std::string);
   // void sendServerRequest(std::string);
-  void sendEnvelope(Envelope);
-  Envelope retrieveEnvelope();
+  void sendEnvelope(Envelope); // writes envelope in  string fromat alongside delimiter to serial
+  Envelope retrieveEnvelope(); // reads from serial until the delimiter, and returns an Envelope built from the retrieved string
+
 };
 
 #endif

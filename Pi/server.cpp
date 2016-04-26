@@ -1,7 +1,8 @@
 #include "server.hpp"
 
-const char Server::delimiter{'~'};
+const char Server::delimiter{'~'}; // sets delimiter, until which the serial is going to read in order to retrieve messages
 
+// constructor, initializes serail to the specified baud rate and gets hostname
 Server::Server(int baud) :
   serial("/dev/ttyAMA0", baud)
 {
@@ -16,6 +17,7 @@ Server::Server(int baud) :
 
   std::cout << "Server '" << name << "' Running..." << std::endl;
 }
+
 
 void Server::run() {
   std::string result;
@@ -59,17 +61,20 @@ void Server::run() {
   }
 }
 
+// 
 std::string Server::verifyRequest(Envelope& env) {
   return IRCHandler.validateRequest(env.getDestination(),
                                     env.getSender(),
                                     env.getExpression());
 }
 
+// broadcasts message by writing data to the serial buffer
 void Server::broadcastSerialData(std::string data) {
   std::cout << "Attempting broadcast..." << std::endl;
   serial.write(data+delimiter);
 }
 
+// retrives string from serial up until the delimiter
 std::string Server::retrieveSerialData() {
   std::cout << "Attempting retrieval..." << std::endl;
   return serial.readUntil(delimiter);

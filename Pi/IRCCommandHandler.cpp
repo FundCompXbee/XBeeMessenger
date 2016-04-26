@@ -1,8 +1,10 @@
 #include "IRCCommandHandler.hpp"
 
+// constructor 
 IRCCommandHandler::IRCCommandHandler() {
 }
 
+// 
 std::string IRCCommandHandler::operator()(std::string exp) {
   expression = exp;
   if (!validExpression()) {
