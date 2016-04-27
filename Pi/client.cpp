@@ -90,11 +90,7 @@ void Client::sendExpression(std::string destination, std::string expression) {
 std::string Client::retrieveResponse() {
     // std::cout << "Attempting to retrieve a response envelope" << std::endl;
   Envelope response(retrieveEnvelope());
-  while (response.getDestination() != userName &&
-         channels.count(response.getDestination()) == 0) {
       // std::cout << "Response envelope received......" << std::endl;
-    response = retrieveEnvelope();
-  }
     // std::cout << "RELEVANT response envelope received" << std::endl;
 
     // std::cout << "converting envelope to string and returning" << std::endl;
@@ -131,11 +127,17 @@ void Client::sendEnvelope(Envelope env) {
 
 // reads from serial until the delimiter, and returns an Envelope built from the retrieved string
 Envelope Client::retrieveEnvelope() {
+  Envelope response;
+  while (response.getDestination() != userName &&
+         channels.count(response.getDestination()) == 0) {
+
     // std::cout << "Attempting to retrieve an envelope" << std::endl;
-  std::string resp(serial.readUntil(delimiter));
+
     // std::cout << "  retrieved string: '" << resp << "'" << std::endl;
     // std::cout << "  Attempting to convert to envelope" << std::endl;
-  Envelope env(resp);
+    response = Envelope(serial.readUntil(delimiter));
     // std::cout << "  Conversion complete" << std::endl;
-  return env;
+      // std::cout << "Response envelope received......" << std::endl;
+  }
+  return response;
 }
