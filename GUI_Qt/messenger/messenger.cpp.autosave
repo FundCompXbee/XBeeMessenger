@@ -148,6 +148,8 @@ void Messenger::on_actionJoin_Channel_triggered()
 
 void Messenger::on_actionCreate_Channel_triggered()
 {
+    
+    
     ui->inputText->clear();
     ui->helpTextBrowser->clear();
     ui->inputText->textCursor().insertText("\\create <channel>");
