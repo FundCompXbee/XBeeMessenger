@@ -33,6 +33,7 @@ private:
   std::string createChannel();
   std::string getChannels();
   std::string joinChannel();
+  std::string changeName();
   std::string ping();
 };
 

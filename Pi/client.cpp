@@ -11,9 +11,7 @@ Client::Client(std::string userName, int baud) : // constructor
 }
 
 void Client::setUsername(std::string name) {  // sets client's userName
-  if (name != "" || name == "server") {   // returns if client already has a userName
-    return;
-  }
+  sendExpression("server", "CHANGENAME "+name+" "+userName);
   userName = name;
 }
 

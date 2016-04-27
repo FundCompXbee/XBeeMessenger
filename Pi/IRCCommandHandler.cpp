@@ -1,10 +1,10 @@
 #include "IRCCommandHandler.hpp"
 
-// constructor 
+// constructor
 IRCCommandHandler::IRCCommandHandler() {
 }
 
-// 
+//
 std::string IRCCommandHandler::operator()(std::string exp) {
   expression = exp;
   if (!validExpression()) {
@@ -22,6 +22,7 @@ std::string IRCCommandHandler::operator()(std::string exp) {
   else if (command == "GETCHANNELS") result = getChannels();
   else if (command == "JOINCHANNEL") result = joinChannel();
   else if (command == "PING") result = ping();
+  else if (command == "CHANGENAME") result = changeName();
   else result = "Invalid IRC Command '" + command + "'";
 
   return result;
@@ -150,4 +151,31 @@ std::string IRCCommandHandler::joinChannel() {
 std::string IRCCommandHandler::ping() {
   // PING
   return "";
+}
+
+std::string IRCCommandHandler::changeName() {
+  // CHANGENAME NewName OldName
+  std::string newName = arguments[0];
+  std::string oldName = arguments[1];
+  // find invalid usernames
+  if (newName == "server"     ||
+      users.count(newName)    ||
+      channels.count(newName)
+      ) {
+    return "Change Name Failure: Invalid or In Use Username '"+newName+"'";
+  }
+
+  users[newName] = users[oldName];
+  users[newName].setName(newName);
+
+  users.erase(oldName);
+
+  for (auto& pair : channels) {
+    if (pair.second.hasUser(oldName)) {
+      pair.second.addUser(newName);
+      pair.second.removeUser(oldName);
+    }
+  }
+
+  return "Change Name Success: Changed '"+oldName+"' to '"+newName+"'";
 }
