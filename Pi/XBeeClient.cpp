@@ -13,7 +13,7 @@ int main() {
   std::cout << servers;
   std::cout << "Connect to: ";
   std::getline(std::cin, str);
-  client.connectToServer(str);
+  client.connectServer(str);
   std::cout << "Response: " << client.retrieveResponse() << std::endl;
 
   // std::set<std::string> channels = client.getChannels();

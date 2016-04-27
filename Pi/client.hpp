@@ -15,7 +15,8 @@ public:
 
   void setUsername(std::string); // sets client's userName
   std::string getServers(); // returns the set of servers on the network
-  void connectToServer(std::string); // connects to the server and changes te serverName
+  void connectServer(std::string); // connects to the server and changes te serverName
+  void disconnectServer(); // disconnects from the server and changes te serverName
 
   // std::set<std::string> getChannels();
   void joinChannel(std::string); // adds a channel to the list of channels

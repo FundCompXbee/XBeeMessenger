@@ -11,8 +11,8 @@ Client::Client(std::string userName, int baud) : // constructor
 }
 
 void Client::setUsername(std::string name) {  // sets client's userName
-  sendExpression("server", "CHANGENAME "+name+" "+userName);
   userName = name;
+  sendExpression("server", "CHANGENAME "+name+" "+userName);
 }
 
 // retrieves the servers on the network by making a ping request and retrieving the server response
@@ -34,10 +34,15 @@ std::string Client::getServers() {
 }
 
 // connects to the server by sending an expressing and changes the serverName associated with the client
-void Client::connectToServer(std::string server) {
+void Client::connectServer(std::string server) {
     // std::cout << "Sending a request to '" << server << "' for connection" << std::endl;
   sendExpression("server","CONNECT "+userName);
   serverName = server;
+}
+
+void Client::disconnectServer() {
+  sendExpression("server", "DISCONNECT "+serverName);
+  serverName = "";
 }
 
 // std::set<std::string> Client::getChannels() {

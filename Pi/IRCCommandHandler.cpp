@@ -18,6 +18,7 @@ std::string IRCCommandHandler::operator()(std::string exp) {
   std::string result;
   if (command == "MSG") result = message();
   else if (command == "CONNECT") result = connect();
+  else if (command == "CONNECT") result = disconnect();
   else if (command == "CREATECHANNEL") result = createChannel();
   else if (command == "GETCHANNELS") result = getChannels();
   else if (command == "JOINCHANNEL") result = joinChannel();
@@ -114,10 +115,29 @@ std::string IRCCommandHandler::connect() {
   return result;
 }
 
+std::string IRCCommandHandler::disconnect() {
+  // DISCONNECT servername username
+  std::string serverName {arguments[0]};
+  std::string userName   {arguments[1]};
+
+  if (users.count(userName) == 0) {
+    return "Disconnect Failure: User '"+userName+"' does not exist on this server";
+  }
+
+  users.erase(userName);
+  for (auto& pair : channels) {
+    if (pair.second.hasUser(userName)) {
+      pair.second.removeUser(userName);
+    }
+  }
+
+  return "Disconnect Success: User '"+userName+"' has been removed";
+}
+
 std::string IRCCommandHandler::createChannel() {
   // CREATECHANNEL channelname username
-  std::string channel{arguments[0]};
-  std::string user{arguments[1]};
+  std::string channel {arguments[0]};
+  std::string user    {arguments[1]};
 
   std::string result;
   if (channels.count(channel) || channel == "server") {
@@ -142,8 +162,8 @@ std::string IRCCommandHandler::getChannels() {
 
 std::string IRCCommandHandler::joinChannel() {
   // JOINCHANNEL channelName userName
-  std::string channelName = arguments[0];
-  std::string userName = arguments[1];
+  std::string channelName {arguments[0]};
+  std::string userName    {arguments[1]};
   channels.at(channelName).addUser(userName);
   return userName+" successfully joined channel "+channelName;
 }
@@ -155,8 +175,8 @@ std::string IRCCommandHandler::ping() {
 
 std::string IRCCommandHandler::changeName() {
   // CHANGENAME NewName OldName
-  std::string newName = arguments[0];
-  std::string oldName = arguments[1];
+  std::string newName {arguments[0]};
+  std::string oldName {arguments[1]};
   // find invalid usernames
   if (newName == "server"     ||
       users.count(newName)    ||

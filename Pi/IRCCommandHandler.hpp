@@ -30,6 +30,7 @@ private:
   // For functionality
   std::string message();
   std::string connect();
+  std::string disconnect();
   std::string createChannel();
   std::string getChannels();
   std::string joinChannel();
