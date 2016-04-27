@@ -63,7 +63,7 @@ void Client::connectToServer(std::string server) {
 // adds a channel to the set of channels
 void Client::joinChannel(std::string channel) {
     // std::cout << "Attempting to join a channel '" << channel << "'" << std::endl;
-  sendExpression("server", "CREATECHANNEL "+channel+" "+userName);
+  sendExpression("server", "JOINCHANNEL "+channel+" "+userName);
   channels.insert(channel);
 }
 
