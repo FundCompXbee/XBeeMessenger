@@ -11,8 +11,8 @@ Client::Client(std::string userName, int baud) : // constructor
 }
 
 void Client::setUsername(std::string name) {  // sets client's userName
-  userName = name;
   sendExpression("server", "CHANGENAME "+name+" "+userName);
+  userName = name;
 }
 
 // retrieves the servers on the network by making a ping request and retrieving the server response

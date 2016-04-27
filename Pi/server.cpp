@@ -24,7 +24,7 @@ Server::Server(int baud) :
     //std::cerr << "Error: Could not set name from hostname" << std::endl;
     exit(EXIT_FAILURE);
   }
-  
+
   FILE_LOG(logDEBUG) << "Server' " << name << "' Runing... ";
  // std::cout << "Server '" << name << "' Running..." << std::endl;
 }
@@ -66,7 +66,7 @@ void Server::run() {
     }
     else {
       std::cout << "Envelope failed verification..." << std::endl;
-      broadcastEnv = Envelope(name, receivedEnv.getSender(), name, result);
+      broadcastEnv = Envelope(name, receivedEnv.getSender(), "server", result);
       std::cout << "Failure notification sent..." << std::endl;
     }
 
@@ -74,7 +74,7 @@ void Server::run() {
   }
 }
 
-// 
+//
 std::string Server::verifyRequest(Envelope& env) {
   return IRCHandler.validateRequest(env.getDestination(),
                                     env.getSender(),
@@ -83,7 +83,7 @@ std::string Server::verifyRequest(Envelope& env) {
 
 // broadcasts message by writing data to the serial buffer
 void Server::broadcastSerialData(std::string data) {
-  FILE_LOG(logDEBUG) << "Attempting bradcast..."; 
+  FILE_LOG(logDEBUG) << "Attempting bradcast...";
   //std::cout << "Attempting broadcast..." << std::endl;
   serial.write(data+delimiter);
 }
