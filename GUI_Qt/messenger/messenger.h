@@ -18,7 +18,7 @@
 #include "../../Pi/envelope.hpp"
 #include <set>
 #include <QString>
-
+#include <QInputDialog>
 namespace Ui {
 class Messenger;
 }
@@ -46,6 +46,7 @@ private:
     QString username;
     QString currentChannel;
     Client client;
+    QString server;
     bool connectedToServer;
 };
 

@@ -8,7 +8,7 @@
 Messenger::Messenger(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Messenger),
-    username("madeline"),
+    username("conrad"),
     currentChannel("server"),
     client(username.toStdString(), 38400),
     connectedToServer(false)
@@ -17,13 +17,22 @@ Messenger::Messenger(QWidget *parent) :
     ui->channelsTextBrowser->textCursor().insertText("Channels: \n");
 
     std::set<std::string> servers = client.getServers();
-    ui->helpTextBrowser->textCursor().insertText("Available Servers: \n");
+    std::string serverList = "Available Servers: \n";
+    //ui->helpTextBrowser->textCursor().insertText("Available Servers: \n");
     for (std::string entry : servers) {
-        ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(entry));
-        ui->helpTextBrowser->textCursor().insertText("\n");
+        serverList.append(entry + "\n")  ;
+        //ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(entry));
+        //ui->helpTextBrowser->textCursor().insertText("\n");
     }
-    ui->helpTextBrowser->textCursor().insertText("\nChoose a server to connect to and send its name.\n\n");
 
+    bool ok;
+    QString text = QInputDialog::getText(this, "Connect to Server",
+                                         QString::fromStdString(serverList), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !text.isEmpty()) {
+        server = text;
+        client.connectToServer(text.toStdString());
+    }
 
     //start concurrent thread that checks for new messages on GUI startup
     extern void receiveMessageFuntion();
@@ -33,6 +42,8 @@ Messenger::Messenger(QWidget *parent) :
 //Deconstructor
 Messenger::~Messenger()
 {
+    //leave channels
+    //and disconnect from server
     delete ui;
 }
 
@@ -42,50 +53,10 @@ void Messenger::on_sendButton_clicked()
     //Get the string that the user typed into the text edit box
     msgString = ui->inputText->toPlainText();
 
-    //Check if it's a message or command
-
-    if (connectedToServer && msgString != NULL && msgString.at(0) == '\\') {
-
-        //send command to server
-
-        QStringList command = msgString.split(" ");
-        if (command[0] == "\\nick") {
-            username = command[1];
-        }
-        else if (command[0] == "\\join") {
-
-            client.joinChannel(command[1].toStdString());
-            currentChannel = command[1];
-            ui->channelsListWidget->addItem(command[1]);
-        }
-        else if (command[0] == "\\create") {
-            client.createChannel(command[1].toStdString());
-            ui->channelsListWidget->addItem(command[1]);
-        }
-
-        ui->helpTextBrowser->clear();
-    } else if (connectedToServer) {
-
-
-        client.sendExpression(currentChannel.toStdString(), "MSG "+get_msgString());
-    }
-
-    if (!connectedToServer) {
-        client.connectToServer(get_msgString());
-        connectedToServer = true;
-        //ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(client.retrieveResponse()));
-    }
+    client.sendExpression(currentChannel.toStdString(), "MSG "+get_msgString());
 
     //Remove the user's message from the text edit box at the bottom
     ui->inputText->clear();
-
-    //clear the help message, in case the user was running a command
-    //and not just sending a message
-
-
-    //convert the QString to an std::string and send it
-    //newEnvelope = envelope(get_msgString();
-    //send(newEnvelope)
 }
 
 //Convert user's message from a QString to and std::string
@@ -97,13 +68,9 @@ std::string Messenger::get_msgString()
 //Check for new messages
 void Messenger::receiveMessageFunction()
 {
-      std::string displayString;
-      bool isServer;
-      bool isActiveChannel;
+    bool isServer;
+    bool isActiveChannel;
     while (true) {
-        //ui->messageView->textCursor().insertText("Checking for new message...\n");
-        //QThread::sleep(10);
-
         Envelope envelope = client.retrieveEnvelope();
 
         isServer = (envelope.getSender() == "server");
@@ -120,17 +87,14 @@ void Messenger::receiveMessageFunction()
         } else if (isServer) {
             ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(envelope.getExpression()));
         }
-
         //Make sure that the message view scrolls to the bottom
         ui->messageView->ensureCursorVisible();
     }
 }
 
-
 void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 {
     currentChannel = ui->channelsListWidget->selectedItems()[0]->text();
-    std::cout << "current channel is : " << currentChannel.toStdString();
     ui->messageView->setTextColor(QColor("#DB92DD"));
     ui->messageView->textCursor().insertText("____________________________________________________________________\n");
     ui->messageView->textCursor().insertText("Channel: ");
@@ -143,26 +107,49 @@ void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 //Change name command
 void Messenger::on_actionChange_Name_triggered()
 {
-    ui->inputText->clear();
-    ui->helpTextBrowser->clear();
-    ui->inputText->textCursor().insertText("\\nick <newusername>");
-    ui->helpTextBrowser->textCursor().insertText("To change your username, replace <newusername> with your desired name and click send to perform the command.");
+    bool ok;
+    QString text = QInputDialog::getText(this, "Change Username",
+                                         "User name:", QLineEdit::Normal,
+                                         username, &ok);
+    if (ok && !text.isEmpty()) {
+        username = text;
+        client.setUsername(username.toStdString());
+        client.connectToServer(server.toStdString());
+    }
+    ui->helpTextBrowser->textCursor().insertText("Changed user name to: \n");
+    ui->helpTextBrowser->textCursor().insertText(username);
+    ui->helpTextBrowser->textCursor().insertText("\n");
 }
 
 //Join channel command
 void Messenger::on_actionJoin_Channel_triggered()
 {
-    ui->inputText->clear();
-    ui->helpTextBrowser->clear();
-    ui->inputText->textCursor().insertText("\\join <channel>");
-    ui->helpTextBrowser->textCursor().insertText("To join a channel, replace <channel> with the channel's name and click send to perform the command. Then to switch over to the channel, select it in the channel list on the left.");
+    bool ok;
+    QString text = QInputDialog::getText(this, "Join Channel",
+                                         "Join channel: ", QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !text.isEmpty()) {
+        client.joinChannel(text.toStdString());
+        ui->channelsListWidget->addItem(text);
+    }
+    ui->helpTextBrowser->textCursor().insertText("Joined channel: \n");
+    ui->helpTextBrowser->textCursor().insertText(text);
+    ui->helpTextBrowser->textCursor().insertText("\n");
+
 }
 
 void Messenger::on_actionCreate_Channel_triggered()
 {
-    ui->inputText->clear();
-    ui->helpTextBrowser->clear();
-    ui->inputText->textCursor().insertText("\\create <channel>");
-    ui->helpTextBrowser->textCursor().insertText("To create a new channel, replace <channel> with the channel's name and click send to perform the command. Then to switch over to the new channel, select it in the channel list on the left.");
+    bool ok;
+    QString text = QInputDialog::getText(this, "Create Channel",
+                                         "Create channel: ", QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !text.isEmpty()) {
+        client.createChannel(text.toStdString());
+        ui->channelsListWidget->addItem(text);
+    }
+    ui->helpTextBrowser->textCursor().insertText("Created channel: \n");
+    ui->helpTextBrowser->textCursor().insertText(text);
+    ui->helpTextBrowser->textCursor().insertText("\n");
 }
 

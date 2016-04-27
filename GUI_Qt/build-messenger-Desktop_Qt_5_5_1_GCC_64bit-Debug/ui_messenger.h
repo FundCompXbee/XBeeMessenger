@@ -177,7 +177,6 @@ public:
         channelsTextBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         channelsTextBrowser->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
         channelsListWidget = new QListWidget(centralWidget);
-        new QListWidgetItem(channelsListWidget);
         channelsListWidget->setObjectName(QStringLiteral("channelsListWidget"));
         channelsListWidget->setGeometry(QRect(10, 40, 151, 192));
         QPalette palette2;
@@ -249,13 +248,6 @@ public:
         actionJoin_Channel->setText(QApplication::translate("Messenger", "Join Channel", 0));
         actionCreate_Channel->setText(QApplication::translate("Messenger", "Create Channel", 0));
         sendButton->setText(QApplication::translate("Messenger", "Send", 0));
-
-        const bool __sortingEnabled = channelsListWidget->isSortingEnabled();
-        channelsListWidget->setSortingEnabled(false);
-        QListWidgetItem *___qlistwidgetitem = channelsListWidget->item(0);
-        ___qlistwidgetitem->setText(QApplication::translate("Messenger", "server", 0));
-        channelsListWidget->setSortingEnabled(__sortingEnabled);
-
         menuActions->setTitle(QApplication::translate("Messenger", "Actions", 0));
     } // retranslateUi
 
