@@ -5,7 +5,7 @@ SERVEREXE=XBeeServer.exe
 SERVEROBJS=XBeeServer.o server.o IRCCommandHandler.o serial.o envelope.o user.o channel.o
 
 CXX=g++ -std=gnu++11
-CXXFLAGS=-03
+CXXFLAGS=-O3
 
 LINKER=g++
 LINKERFLAGS=-std=gnu++11
