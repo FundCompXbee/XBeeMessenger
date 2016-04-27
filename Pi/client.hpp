@@ -14,7 +14,7 @@ public:
   Client(std::string, int);  // constructor
 
   void setUsername(std::string); // sets client's userName
-  std::set<std::string> getServers(); // returns the set of servers on the network
+  std::string getServers(); // returns the set of servers on the network
   void connectToServer(std::string); // connects to the server and changes te serverName
 
   // std::set<std::string> getChannels();
