@@ -22,6 +22,7 @@ public:
 
   void sendExpression(std::string, std::string); // biulds Envelope and sends expression
   std::string retrieveResponse(std::string destinationToListenFor); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
+  std::string retrieveResponse(); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
 
 private:
   static const char delimiter;  // sets delimiter, until which the serial is going to read in order to retrieve messages

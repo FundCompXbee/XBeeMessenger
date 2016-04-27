@@ -80,6 +80,20 @@ void Client::sendExpression(std::string destination, std::string expression) {
   sendEnvelope(Envelope(serverName, destination, userName, expression));
 }
 
+
+std::string Client::retrieveResponse() {
+    // std::cout << "Attempting to retrieve a response envelope" << std::endl;
+  Envelope response(retrieveEnvelope());
+  while (response.getDestination() != userName &&
+         channels.count(response.getDestination()) == 0) {
+      // std::cout << "Response envelope received......" << std::endl;
+    response = retrieveEnvelope();
+  }
+    // std::cout << "RELEVANT response envelope received" << std::endl;
+
+    // std::cout << "converting envelope to string and returning" << std::endl;
+  return response.getExpression();
+}
 // calls retrieveEnvelope() to retrieve Enveloped from the serial until the Envelope's destiantion matches that of the client, then returns that Envelope's expression
 std::string Client::retrieveResponse(std::string destinationToListenFor) {
     // std::cout << "Attempting to retrieve a response envelope" << std::endl;
