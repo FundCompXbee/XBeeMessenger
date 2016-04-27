@@ -19,6 +19,7 @@ public:
 
   // std::set<std::string> getChannels();
   void joinChannel(std::string); // adds a channel to the list of channels
+  void createChannel(std::string); // adds a channel to the list of channels
 
   void sendExpression(std::string, std::string); // biulds Envelope and sends expression
   std::string retrieveResponse(std::string destinationToListenFor); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
