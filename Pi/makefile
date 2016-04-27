@@ -5,11 +5,11 @@ SERVEREXE=XBeeServer.exe
 SERVEROBJS=XBeeServer.o server.o IRCCommandHandler.o serial.o envelope.o user.o channel.o
 
 CXX=g++ -std=gnu++11
-CXXFLAGS=-pipe -g -Wall -W -D_REENTRANT -fPIC
+CXXFLAGS=-03
 
 LINKER=g++
 LINKERFLAGS=-std=gnu++11
-LINKS=-L/usr/lib64 -ljsoncpp -lboost_system -lpthread
+LINKS=-ljsoncpp -lboost_system -lpthread
 
 all: $(CLIENTEXE) $(SERVEREXE)
 
