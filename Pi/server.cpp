@@ -1,4 +1,10 @@
 #include "server.hpp"
+#ifdef LOG1
+#include "../loggerTesting/log1.h"
+#else
+#include "../loggerTesting/log.h"
+#endif
+
 
 const char Server::delimiter{'~'}; // sets delimiter, until which the serial is going to read in order to retrieve messages
 
@@ -6,16 +12,21 @@ const char Server::delimiter{'~'}; // sets delimiter, until which the serial is 
 Server::Server(int baud) :
   serial("/dev/ttyAMA0", baud)
 {
+  FILELog::ReportingLevel() = FILELog::FromString(/*argv[1] ? argv[1] : */"DEBUG1");
+  FILE_LOG(logDEBUG) << "Initializing logger";
+
   char nameptr[255];
   if (gethostname(nameptr, 255) == 0) {
     name = nameptr;
   }
   else {
-    std::cerr << "Error: Could not set name from hostname" << std::endl;
+    FILE_LOG(logERROR) << "Error: Could not set name from hostname";
+    //std::cerr << "Error: Could not set name from hostname" << std::endl;
     exit(EXIT_FAILURE);
   }
-
-  std::cout << "Server '" << name << "' Running..." << std::endl;
+  
+  FILE_LOG(logDEBUG) << "Server' " << name << "' Runing... ";
+ // std::cout << "Server '" << name << "' Running..." << std::endl;
 }
 
 
@@ -26,9 +37,11 @@ void Server::run() {
   while (true) {
     receivedEnv = Envelope(retrieveSerialData());
     //Verify envelope intended for this server
-    std::cout << "Verifying request is for this server" << std::endl;
+    FILE_LOG(logDEBUG) << "Verifying Request is from Server.";
+    //std::cout << "Verifying request is for this server" << std::endl;
     if  (receivedEnv.getServer() != name && receivedEnv.getServer() != "") {
-      std::cout << "NOT for this server CONFIRMED. SKIPPING" << std::endl;
+      FILE_LOG(logDEBUG) << "NOT for this server CONFIRMED, SKIPPING";
+      //std::cout << "NOT for this server CONFIRMED. SKIPPING" << std::endl;
       continue;
     }
 
@@ -70,13 +83,15 @@ std::string Server::verifyRequest(Envelope& env) {
 
 // broadcasts message by writing data to the serial buffer
 void Server::broadcastSerialData(std::string data) {
-  std::cout << "Attempting broadcast..." << std::endl;
+  FILE_LOG(logDEBUG) << "Attempting bradcast..."; 
+  //std::cout << "Attempting broadcast..." << std::endl;
   serial.write(data+delimiter);
 }
 
 // retrives string from serial up until the delimiter
 std::string Server::retrieveSerialData() {
-  std::cout << "Attempting retrieval..." << std::endl;
+  FILE_LOG(logDEBUG) << "Attempting retrieval...";
+  //std::cout << "Attempting retrieval..." << std::endl;
   return serial.readUntil(delimiter);
 }
 
