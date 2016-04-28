@@ -14,21 +14,21 @@ public:
   Client(std::string, int);  // constructor
 
   void setUsername(std::string); // sets client's userName
-  std::set<std::string> getServers(); // returns the set of servers on the network 
+  std::set<std::string> getServers(); // returns the set of servers on the network
   void connectToServer(std::string); // connects to the server and changes te serverName
 
   // std::set<std::string> getChannels();
-  void joinChannel(std::string); // adds a channel to the list of channels 
+  void joinChannel(std::string); // adds a channel to the list of channels
 
   void sendExpression(std::string, std::string); // biulds Envelope and sends expression
-  std::string retrieveResponse(); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
+  std::string retrieveResponse(std::string destinationToListenFor); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
 
 private:
   static const char delimiter;  // sets delimiter, until which the serial is going to read in order to retrieve messages
 
   Serial serial; // creates serial
 
-  std::string userName; 
+  std::string userName;
   std::string serverName;
   std::set<std::string> channels;
 
