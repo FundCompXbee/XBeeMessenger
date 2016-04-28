@@ -17,13 +17,14 @@ void Client::setUsername(std::string name) {  // sets client's userName
 
 // retrieves the servers on the network by making a ping request and retrieving the server response
 std::string Client::getServers() {
+  std::string servers;
   // std::cout << "Attempting to get servers" << std::endl;
   // std::cout << "Sending Ping" << std::endl;
+  sendExpression("server","PING");
   retrieveEnvelope();
   sendExpression("server","PING");
   // std::cout << "ping sent" << std::endl;
 
-  std::string servers;
   // std::cout << "getting server pong envelope..." << std::endl;
   Envelope pong(retrieveEnvelope());
   // std::cout << "received server pong envelope '" << pong.toString() << "'" << std::endl;
