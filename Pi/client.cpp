@@ -28,19 +28,23 @@ std::string Client::getServers() {
   sendExpression("server","PING");
   Envelope pong;
   try {
+    std::cout << "about to get ping response" << std::endl;
     pong = retrieveEnvelope();
   }
   catch (...) {
+    std::cout << "failed to get ping response, threw exception" << std::endl;
     throw;
   }
   // std::cout << "received server pong envelope '" << pong.toString() << "'" << std::endl;
   try {
+    std::cout << "About to try pong.getServer()" << std::endl;
     servers += pong.getServer()+"\n";
   }
   catch (...) {
+    std::cout << "faild to pong.getServer() throwing exception" << std::endl;
     throw;
   }
-
+  std::cout << "everything went fin in getServers()" << std::endl;
     // std::cout << "returning server set" << std::endl;
   return servers;
 }
