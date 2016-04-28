@@ -19,6 +19,7 @@ void Client::setUsername(std::string name) {  // sets client's userName
 std::string Client::getServers() {
   // std::cout << "Attempting to get servers" << std::endl;
   // std::cout << "Sending Ping" << std::endl;
+  retrieveEnvelope();
   sendExpression("server","PING");
   // std::cout << "ping sent" << std::endl;
 
