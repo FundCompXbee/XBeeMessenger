@@ -62,6 +62,7 @@ Json::Value& Envelope::operator[](const char* str) {
 void Envelope::swap(Envelope& src) {
   try {
     std::cout << "trying to swap envelope '"+src.toString()+"'" << std::endl;
+    std::cout << "src.getDestination() = '"+src.getDestination()+"'"<<std::endl;
     Json::Value::swap(src);
   }
   catch (...) {
