@@ -14,6 +14,9 @@
 #include <QAbstractSlider>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include "../../Pi/client.hpp"
+#include <set>
+#include <QString>
 
 namespace Ui {
 class Messenger;
@@ -34,12 +37,15 @@ private slots:
     void on_channelsListWidget_clicked(const QModelIndex &index);
     void on_actionChange_Name_triggered();
     void on_actionJoin_Channel_triggered();
+    void on_actionCreate_Channel_triggered();
 
 private:
     Ui::Messenger *ui;
     QString msgString;
     QString username;
     QString currentChannel;
+    Client client;
+    bool connectedToServer;
 };
 
 #endif // MESSENGER_H

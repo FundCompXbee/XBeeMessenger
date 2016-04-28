@@ -827,7 +827,7 @@
     </property>
     <item>
      <property name="text">
-      <string>Server</string>
+      <string>server</string>
      </property>
     </item>
    </widget>
@@ -847,6 +847,7 @@
     </property>
     <addaction name="actionChange_Name"/>
     <addaction name="actionJoin_Channel"/>
+    <addaction name="actionCreate_Channel"/>
    </widget>
    <addaction name="menuActions"/>
   </widget>
@@ -858,6 +859,11 @@
   <action name="actionJoin_Channel">
    <property name="text">
     <string>Join Channel</string>
+   </property>
+  </action>
+  <action name="actionCreate_Channel">
+   <property name="text">
+    <string>Create Channel</string>
    </property>
   </action>
  </widget>

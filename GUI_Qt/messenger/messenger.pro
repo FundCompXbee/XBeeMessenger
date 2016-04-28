@@ -13,8 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        messenger.cpp
+        messenger.cpp \
+    ../../Pi/client.cpp \
+    ../../Pi/envelope.cpp \
+    ../../Pi/serial.cpp
 
-HEADERS  += messenger.h
+HEADERS  += messenger.h \
+    ../../Pi/client.hpp \
+    ../../Pi/envelope.hpp \
+    ../../Pi/serial.hpp
 
 FORMS    += messenger.ui

@@ -31,6 +31,7 @@ class Ui_Messenger
 public:
     QAction *actionChange_Name;
     QAction *actionJoin_Channel;
+    QAction *actionCreate_Channel;
     QWidget *centralWidget;
     QTextEdit *inputText;
     QPushButton *sendButton;
@@ -107,6 +108,8 @@ public:
         actionChange_Name->setObjectName(QStringLiteral("actionChange_Name"));
         actionJoin_Channel = new QAction(Messenger);
         actionJoin_Channel->setObjectName(QStringLiteral("actionJoin_Channel"));
+        actionCreate_Channel = new QAction(Messenger);
+        actionCreate_Channel->setObjectName(QStringLiteral("actionCreate_Channel"));
         centralWidget = new QWidget(Messenger);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         inputText = new QTextEdit(centralWidget);
@@ -175,7 +178,6 @@ public:
         channelsTextBrowser->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
         channelsListWidget = new QListWidget(centralWidget);
         new QListWidgetItem(channelsListWidget);
-        new QListWidgetItem(channelsListWidget);
         channelsListWidget->setObjectName(QStringLiteral("channelsListWidget"));
         channelsListWidget->setGeometry(QRect(10, 40, 151, 192));
         QPalette palette2;
@@ -230,6 +232,7 @@ public:
         menuBar->addAction(menuActions->menuAction());
         menuActions->addAction(actionChange_Name);
         menuActions->addAction(actionJoin_Channel);
+        menuActions->addAction(actionCreate_Channel);
 
         retranslateUi(Messenger);
 
@@ -244,14 +247,13 @@ public:
         Messenger->setWindowTitle(QApplication::translate("Messenger", "Messenger", 0));
         actionChange_Name->setText(QApplication::translate("Messenger", "Change Name", 0));
         actionJoin_Channel->setText(QApplication::translate("Messenger", "Join Channel", 0));
+        actionCreate_Channel->setText(QApplication::translate("Messenger", "Create Channel", 0));
         sendButton->setText(QApplication::translate("Messenger", "Send", 0));
 
         const bool __sortingEnabled = channelsListWidget->isSortingEnabled();
         channelsListWidget->setSortingEnabled(false);
         QListWidgetItem *___qlistwidgetitem = channelsListWidget->item(0);
-        ___qlistwidgetitem->setText(QApplication::translate("Messenger", "Channel1", 0));
-        QListWidgetItem *___qlistwidgetitem1 = channelsListWidget->item(1);
-        ___qlistwidgetitem1->setText(QApplication::translate("Messenger", "Channel2", 0));
+        ___qlistwidgetitem->setText(QApplication::translate("Messenger", "server", 0));
         channelsListWidget->setSortingEnabled(__sortingEnabled);
 
         menuActions->setTitle(QApplication::translate("Messenger", "Actions", 0));
