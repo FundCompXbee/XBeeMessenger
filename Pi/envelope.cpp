@@ -1,9 +1,9 @@
 #include "envelope.hpp"
 
 /*
- Envelope Class inherits from the Json:Value class and overloads 
+ Envelope Class inherits from the Json:Value class and overloads
    some of it operators and functions in order create an Envelope
-   object that resembles a Json object's functionality. 
+   object that resembles a Json object's functionality.
 */
 
 
@@ -11,14 +11,14 @@ Envelope::Envelope() { // default contructor
 }
 
 // contructor that builds Envelope from string
-Envelope::Envelope(std::string str) { 
+Envelope::Envelope(std::string str) {
   std::cout << "Attempting to convert '" << str << "' to an envelope" << std::endl;
   std::stringstream s(str);
   Json::operator>>(s,*this);
   std::cout << "Envelope Conversion Complete" << std::endl;
 }
 
-// constructor that builds Envelope from paramaeters 
+// constructor that builds Envelope from paramaeters
 Envelope::Envelope(std::string server,
                    std::string destination,
                    std::string sender,
@@ -60,7 +60,14 @@ Json::Value& Envelope::operator[](const char* str) {
 
 // overloading Json:Value:swap fuction
 void Envelope::swap(Envelope& src) {
-  Json::Value::swap(src);
+  try {
+    std::cout << "trying to swap envelope" << std::endl;
+    Json::Value::swap(src);
+  }
+  catch (...) {
+    std::cout << "failed swap envelope, throwing" << std::endl;
+    throw;
+  }
 }
 
 // returns value from Server key
