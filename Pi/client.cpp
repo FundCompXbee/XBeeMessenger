@@ -148,6 +148,8 @@ void Client::sendEnvelope(Envelope env) {
 // reads from serial until the delimiter, and returns an Envelope built from the retrieved string
 Envelope Client::retrieveEnvelope() {
   Envelope response;
+  std::string data;
+  std::cout << "about to while loop for retrievEnvelope" << std::endl;
   while (response.getDestination() != userName &&
          channels.count(response.getDestination()) == 0) {
 
@@ -155,9 +157,27 @@ Envelope Client::retrieveEnvelope() {
 
     // std::cout << "  retrieved string: '" << resp << "'" << std::endl;
     // std::cout << "  Attempting to convert to envelope" << std::endl;
-    response = Envelope(serial.readUntil(delimiter));
+    try {
+      std::cout << "about to retrieve data for retrieveEnvelope" << std::endl;
+      data = serial.readUntil(delimiter);
+    }
+    catch (...) {
+      std::cout << "failed to get data for retrieveEnvelope, throwing" << std::endl;
+      throw;
+    }
+    std::cout << "successfully got data for retrieveEnvelope()" << std::endl;
+
+    try {
+      std::cout << "about to convert data to envelope for retrieveEnvelope()" << std::endl;
+      response = Envelope(data);
+    }
+    catch (...) {
+      std::cout << "failed to convert data to envelope for retrieveEnvelope(), throwing" << std::endl;
+      throw;
+    }
     // std::cout << "  Conversion complete" << std::endl;
       // std::cout << "Response envelope received......" << std::endl;
   }
+  std::cout << "done with retrieveEnvelope" << std::endl;
   return response;
 }
