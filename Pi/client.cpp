@@ -26,10 +26,20 @@ std::string Client::getServers() {
   // }
 
   sendExpression("server","PING");
-  Envelope pong(retrieveEnvelope());
+  Envelope pong;
+  try {
+    pong = retrieveEnvelope();
+  }
+  catch (...) {
+    throw;
+  }
   // std::cout << "received server pong envelope '" << pong.toString() << "'" << std::endl;
-  servers += pong.getServer()+"\n";
-
+  try {
+    servers += pong.getServer()+"\n";
+  }
+  catch (...) {
+    throw;
+  }
 
     // std::cout << "returning server set" << std::endl;
   return servers;
