@@ -43,7 +43,7 @@ void Client::connectServer(std::string server) {
 }
 
 void Client::disconnectServer() {
-  sendExpression("server", "DISCONNECT "+serverName);
+  sendExpression("server", "DISCONNECT "+serverName+" "+userName);
   serverName = "";
 }
 
