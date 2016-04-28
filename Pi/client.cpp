@@ -20,10 +20,10 @@ std::string Client::getServers() {
   std::string servers;
   // std::cout << "Attempting to get servers" << std::endl;
   // std::cout << "Sending Ping" << std::endl;
-  for (int i{0}; i < 3; ++i) {
-    sendExpression("server","PING");
-    serial.readUntil(delimiter);
-  }
+  // for (int i{0}; i < 3; ++i) {
+  //   sendExpression("server","PING");
+  //   serial.readUntil(delimiter);
+  // }
 
   sendExpression("server","PING");
   Envelope pong(retrieveEnvelope());
