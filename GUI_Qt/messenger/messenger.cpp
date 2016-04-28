@@ -11,7 +11,7 @@ Messenger::Messenger(QWidget *parent) :
 {
     ui->setupUi(this);
     username = "defaultUser";
-
+    currentChannel = "server";
     ui->channelsTextBrowser->textCursor().insertText("Channels: \n");
 
     //start concurrent thread that checks for new messages on GUI startup

@@ -827,12 +827,7 @@
     </property>
     <item>
      <property name="text">
-      <string>Channel1</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Channel2</string>
+      <string>Server</string>
      </property>
     </item>
    </widget>
