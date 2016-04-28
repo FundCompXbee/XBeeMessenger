@@ -1,5 +1,5 @@
 # // sets delimiter, until which the serial is going to read in order to retrieve messages
-include "client.hpp"
+#include "client.hpp"
 
 const char Client::delimiter{'~'}; // sets delimiter, until which the serial is going to read in order to retrieve messages
 

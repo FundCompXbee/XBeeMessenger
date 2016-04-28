@@ -1,0 +1,416 @@
+Memory-Aware Components
+by Kirk J. Krauss
+
+
+// Listing 1
+//
+// Demonstrates a technique for intercepting virtual memory API functions on 
+// Windows, and for establishing a vectored exception handler that will catch 
+// out-of-memory conditions and do something intelligent with them.  This 
+// code compiles, as is, with Microsoft Visual Studio .NET 2005.  The 
+// following command can be used:
+//
+//      cl /Zi /LD listing1.cpp
+//
+// The function interception and exception handling techniques demonstrated 
+// here are effective on most current versions of Windows including Vista and 
+// XP.
+//
+#include <windows.h>
+
+// These values are specific to 32-bit Windows on Intel platforms.
+#define ABSOLUTE_JMP_OPCODE 0x25FF
+#define RELATIVE_JMP_OPCODE 0xE9
+#define SIZE_OF_JMP_OPCODE  2
+
+// The following type is declared for 64-bit compatibility.  The code in this 
+// listing is 64-bit clean, other than the portions that are specific to 
+// creating JMP instructions.
+//
+#if defined(_WIN64)
+typedef unsigned __int64 AddrT;
+#else
+typedef unsigned int AddrT;
+#endif
+
+// Forward declarations.
+DWORD __stdcall NtAllocateVirtualMemoryWrapper
+(
+    HANDLE,	
+    PVOID *,
+    ULONG,
+    PSIZE_T,
+    ULONG,
+    ULONG
+);
+DWORD __stdcall NtFreeVirtualMemoryWrapper
+(
+    HANDLE   ProcessHandle,
+    PVOID *  BaseAddress,
+    PSIZE_T  pRegionSize,
+    ULONG    FreeType	
+);
+
+// Function pointer types.
+typedef DWORD  (__stdcall *TNtAllocateVirtualMemory)(HANDLE, PVOID *, ULONG, 
+                                  PSIZE_T, ULONG, ULONG);
+typedef DWORD  (__stdcall *TNtFreeVirtualMemory)(HANDLE, PVOID *, PSIZE_T, 
+                                  ULONG);
+typedef void * (__stdcall *TAddVectoredExceptionHandler)(ULONG, 
+                                  PVECTORED_EXCEPTION_HANDLER);
+
+// File scope variables used by the wrappers and the intercept routines alike.
+BYTE                         bNtAllocateJmpInstr[10];
+BYTE                         bNtFreeJmpInstr[10];
+size_t                       sizeOfJmpInstr;
+BYTE                         bOriginalNtAllocateBytes[10];
+BYTE                         bOriginalNtFreeBytes[10];
+MEMORY_BASIC_INFORMATION     mbiAllocate;
+MEMORY_BASIC_INFORMATION     mbiFree;
+DWORD                        oldAllocateProtection;
+DWORD                        oldFreeProtection;
+AddrT                        addrNtAllocateVirtualMemoryWrapper;
+AddrT                        addrNtFreeVirtualMemoryWrapper;
+TNtAllocateVirtualMemory     pfnNtAllocateVirtualMemory;
+TNtFreeVirtualMemory         pfnNtFreeVirtualMemory;
+TAddVectoredExceptionHandler pfnAddVectoredExceptionHandler;
+HINSTANCE                    hNtDll;
+HINSTANCE                    hKernel32Dll;
+
+// This vectored exception handler, established via our DllMain() function, 
+// is invoked when an out-of-memory exception is raised.  It can display 
+// diagnostic information about the exception, including information from 
+// the tracking lists established via code described in the flowcharts.
+// If unused memory is available, this code can also keep the application 
+// running, perhaps long after it would have otherwise crashed.
+//
+LONG __stdcall InterceptedNtApiFuncHandler(PEXCEPTION_POINTERS pExceptionInfo)
+{
+    LONG disposition = EXCEPTION_CONTINUE_SEARCH;
+    LONG code = pExceptionInfo->ExceptionRecord->ExceptionCode;
+    BYTE * pAddress = 
+                   (BYTE *) pExceptionInfo->ExceptionRecord->ExceptionAddress;
+    BOOL bDoSingleStep = FALSE;
+
+    if (code == STATUS_NO_MEMORY)
+    {
+        //
+        // Call code that implements the flowchart in Figure 4.
+        //
+    }
+    else if (code == STATUS_ACCESS_VIOLATION)
+    {
+        //
+        // Determine whether the accessed region is tracked as one that was 
+        // protected according to the flowchart in Figure 4.  If so, call 
+        // code that implements the flowchart in Figure 5.
+        //
+    }
+
+    return disposition;
+}
+
+// This is a wrapper for the low-level virtual memory allocator on Windows.
+// Here, the intercepted allocator is temporarily reverted to its original 
+// form so it can be invoked.  Afterwards, it's restored to its intercepted 
+// condition.  Note that this implementation may miss some calls in multi-
+// threaded scenarios, if a thread calls this allocator while another thread 
+// is already in this wrapper.  Synchronization calls can be added here, and 
+// in the deallocation wrapper, to address such a scenario.
+//
+DWORD __stdcall NtAllocateVirtualMemoryWrapper(
+    HANDLE    ProcessHandle,  // in
+    PVOID *   BaseAddress,    // in/out
+    ULONG     ZeroBits,       // in
+    PSIZE_T   pRegionSize,    // in/out
+    ULONG     AllocationType, // in
+    ULONG     Protect         // in
+)
+{
+    DWORD retVal;
+
+    // Change the API function's code back to normal.
+    VirtualProtect(mbiAllocate.BaseAddress, mbiAllocate.RegionSize, 
+            PAGE_EXECUTE_READWRITE, &oldAllocateProtection);
+    memcpy((void *) pfnNtAllocateVirtualMemory, &bOriginalNtAllocateBytes, 
+            sizeOfJmpInstr);
+    VirtualProtect(mbiAllocate.BaseAddress, mbiAllocate.RegionSize, 
+            oldAllocateProtection, &oldAllocateProtection);
+
+    // Call the API function.
+    retVal = pfnNtAllocateVirtualMemory(ProcessHandle, BaseAddress, ZeroBits, 
+            pRegionSize, AllocationType, Protect);
+
+    // Intercept the API function again.
+    VirtualProtect(mbiAllocate.BaseAddress, mbiAllocate.RegionSize, 
+            PAGE_EXECUTE_READWRITE, &oldAllocateProtection);
+    memcpy((void *) pfnNtAllocateVirtualMemory, &bNtAllocateJmpInstr, 
+            sizeOfJmpInstr);
+    VirtualProtect(mbiAllocate.BaseAddress, mbiAllocate.RegionSize, 
+            oldAllocateProtection, &oldAllocateProtection);
+
+    if (BaseAddress)
+    {
+        if (*BaseAddress)
+        {
+            if (AllocationType & MEM_COMMIT)
+            {
+                //
+                // Look up tracked information about the newly committed 
+                // region.  If it came from a range that was previously 
+                // reserved, call code that implements the flowchart in 
+                // Figure 3.  Otherwise, call code that implements the 
+                // flowchart in Figure 1.
+                //
+            }
+            else if (AllocationType & MEM_RESERVE)
+            {
+                //
+                // The newly created region was reserved but not committed.  
+                // Call code that implements the flowchart in Figure 1.
+                //
+			}
+        }
+		else
+		{
+            //
+            // No region was created.  Call code that implements the 
+            // flowchart in Figure 4.
+            //
+		}
+    }
+
+    return retVal;
+}
+
+// This is a wrapper for the low-level virtual memory deallocator on Windows.
+// As with the above wrapper, this routine temporarily reverts the 
+// intercepted API function to its unintercepted state, invokes it, and then 
+// intercepts it again before tracking the result.
+//
+DWORD __stdcall NtFreeVirtualMemoryWrapper(
+    HANDLE    ProcessHandle,  // in
+    PVOID *   BaseAddress,    // in/out
+    PSIZE_T   pRegionSize,    // in/out
+    ULONG     FreeType        // in
+)
+{
+    DWORD retVal;
+
+    // Change the API function's code back to normal.
+    VirtualProtect(mbiFree.BaseAddress, mbiFree.RegionSize, 
+            PAGE_EXECUTE_READWRITE, &oldFreeProtection);
+    memcpy((void *) pfnNtFreeVirtualMemory, &bOriginalNtFreeBytes, 
+            sizeOfJmpInstr);
+    VirtualProtect(mbiFree.BaseAddress, mbiFree.RegionSize, 
+            oldAllocateProtection, &oldFreeProtection);
+
+    // Call the API function.
+    retVal = pfnNtFreeVirtualMemory(ProcessHandle, BaseAddress, pRegionSize, 
+            FreeType);
+
+    // Intercept the API function again.
+    VirtualProtect(mbiFree.BaseAddress, mbiFree.RegionSize, 
+            PAGE_EXECUTE_READWRITE, &oldFreeProtection);
+    memcpy((void *) pfnNtFreeVirtualMemory, &bNtFreeJmpInstr, sizeOfJmpInstr);
+    VirtualProtect(mbiFree.BaseAddress, mbiFree.RegionSize, 
+            oldAllocateProtection, &oldFreeProtection);
+
+    if (retVal)
+    {
+        //
+        // Call code that implements the flowchart in Figure 2.
+        //
+    }
+
+    return retVal;
+}
+
+// This code finds the the low-level virtual memory allocator and deallocator 
+// API functions in memory and replaces their first few bytes with JMP 
+// instructions.  This modification causes these API functions to jump into 
+// our wrappers (above) when an attempt is made to invoke them.  This code 
+// preserves the original bytes of the modified functions so the wrappers can 
+// replace them, temporarily, to call the actual API functions.
+//
+void InterceptNtApiFuncs(void)
+{
+    WORD wJmpOpcode = ABSOLUTE_JMP_OPCODE;
+    BYTE * pOperand;
+    AddrT addr;
+    void * pSavedJmpDest;
+
+    // Calculate the size of our JMP instruction.
+    sizeOfJmpInstr = SIZE_OF_JMP_OPCODE + sizeof(AddrT);
+
+    // Build the JMP instruction that will be used to intercept 
+    // NtAllocateVirtualMemory().
+    pOperand = (BYTE *) &bNtAllocateJmpInstr + SIZE_OF_JMP_OPCODE;
+    addr = (AddrT) &NtAllocateVirtualMemoryWrapper;
+    if (*(BYTE *) addr == RELATIVE_JMP_OPCODE)
+    {
+        // We have an address in the IAT.  Look up the function's actual 
+        // address.
+        //
+        addr++;
+        addr = sizeof(AddrT) + *(AddrT *) addr + addr;
+    }
+    addrNtAllocateVirtualMemoryWrapper = addr;
+    pSavedJmpDest = &addrNtAllocateVirtualMemoryWrapper;
+    // __asm jmp
+    memcpy(&bNtAllocateJmpInstr, &wJmpOpcode, SIZE_OF_JMP_OPCODE);
+	//   <immediate destination>
+    memcpy(pOperand, &pSavedJmpDest, sizeof(AddrT));
+
+    // Build the JMP instruction that will be used to intercept 
+    // NtFreeVirtualMemory().
+    //
+    pOperand = (BYTE *) &bNtFreeJmpInstr + 2;
+    addr = (AddrT) &NtFreeVirtualMemoryWrapper;
+    if (*(BYTE *) addr == RELATIVE_JMP_OPCODE)
+    {
+        // We have an address in the IAT.  Look up the function's actual 
+        // address.
+        //
+        addr++;
+        addr = sizeof(AddrT) + *(AddrT *) addr + addr;
+    }
+    addrNtFreeVirtualMemoryWrapper = addr;
+    pSavedJmpDest = &addrNtFreeVirtualMemoryWrapper;
+    memcpy(&bNtFreeJmpInstr, &wJmpOpcode, SIZE_OF_JMP_OPCODE);
+    memcpy(pOperand, &pSavedJmpDest, sizeof(AddrT));
+
+    // Get write access to the destinations for these instructions in the 
+    // loaded NTDLL.  First take care of the the allocator.
+    //
+    pfnNtAllocateVirtualMemory = (TNtAllocateVirtualMemory) GetProcAddress(
+            hNtDll, "NtAllocateVirtualMemory");
+    VirtualQuery((void *) pfnNtAllocateVirtualMemory, 
+            &mbiAllocate, sizeof(MEMORY_BASIC_INFORMATION));
+    VirtualProtect(mbiAllocate.BaseAddress, mbiAllocate.RegionSize, 
+            PAGE_EXECUTE_READWRITE, &oldAllocateProtection);
+
+    // Now for the deallocator.
+    //
+    pfnNtFreeVirtualMemory = (TNtFreeVirtualMemory) GetProcAddress(hNtDll, 
+            "NtFreeVirtualMemory");
+    VirtualQuery((void *) pfnNtAllocateVirtualMemory, 
+            &mbiFree, sizeof(MEMORY_BASIC_INFORMATION));
+    if (mbiAllocate.BaseAddress != mbiFree.BaseAddress)
+    {
+        VirtualProtect(mbiFree.BaseAddress, mbiFree.RegionSize, 
+                PAGE_EXECUTE_READWRITE, &oldFreeProtection);
+    }
+
+    // Copy the JMP instructions to their positions in NTDLL, preserving the 
+    // original bytes.
+    //
+    if ((void *) pfnNtAllocateVirtualMemory != NULL)
+    {
+        memcpy(&bOriginalNtAllocateBytes, (void *) pfnNtAllocateVirtualMemory, 
+                sizeOfJmpInstr);
+        memcpy((void *) pfnNtAllocateVirtualMemory, &bNtAllocateJmpInstr, 
+                sizeOfJmpInstr);
+    }
+
+    if ((void *) pfnNtFreeVirtualMemory != NULL)
+    {
+        memcpy(&bOriginalNtFreeBytes, (void *) pfnNtFreeVirtualMemory, 
+                sizeOfJmpInstr);
+        memcpy((void *) pfnNtFreeVirtualMemory, &bNtFreeJmpInstr, 
+                sizeOfJmpInstr);
+    }
+
+    // Restore the NTDLL code section to its original protection settings.
+    VirtualProtect(mbiAllocate.BaseAddress, mbiAllocate.RegionSize, 
+            oldAllocateProtection, &oldAllocateProtection);
+    if (mbiAllocate.BaseAddress != mbiFree.BaseAddress)
+    {
+        VirtualProtect(mbiFree.BaseAddress, mbiFree.RegionSize, 
+                oldFreeProtection, &oldFreeProtection);
+    }
+
+    return;
+}
+
+// This DllMain() routine arranges interception of the low-level virtual 
+// memory allocator as soon as this module is loaded and initialized.
+// It also establishes a vectored exception handler to catch out-of-memory 
+// conditions.
+//
+BOOL WINAPI DllMain(
+    HINSTANCE  hDLL, 
+    DWORD      dwReason, 
+    LPVOID     lpReserved
+)
+{
+    // NTDLL exports the low-level virtual memory API functions that we will 
+    // intercept.
+    hNtDll = GetModuleHandle("ntdll.dll");
+
+    // KERNEL32 exports the function that establishes vectored exception
+    // handling.
+    hKernel32Dll = GetModuleHandle("kernel32.dll");
+
+    if (hKernel32Dll && hNtDll)
+    {
+        // Set up our exception handler.
+        pfnAddVectoredExceptionHandler = (TAddVectoredExceptionHandler) 
+                GetProcAddress(hKernel32Dll, "AddVectoredExceptionHandler");
+
+        if (((void *) pfnAddVectoredExceptionHandler != NULL) &&
+            pfnAddVectoredExceptionHandler(1, InterceptedNtApiFuncHandler))
+        {
+            // Intercept the relevant virtual memory API functions.
+            InterceptNtApiFuncs();
+        }
+    }
+
+    return TRUE;
+}
+
+
+// Listing 2
+//
+// This is a sample program that uses the API interception technique of 
+// listing 1 to arrange tracking of virtual memory and intelligent handling 
+// of out-of-memory conditions.  This code compiles, as is, with Microsoft 
+// Visual Studio .NET 2005.  The following command can be used:
+//
+//      cl /Zi listing2.cpp
+//
+#include <windows.h>
+
+int main(void)
+{
+   // Establish some parameter values for the VirtualAlloc() API function.
+   int iBase = NULL;
+   int iSize = 0x00001000;
+
+   // This call does all the setup to establish virtual memory tracking 
+   // along with an out-of-memory exception handler.
+   //
+   HINSTANCE hDLL = LoadLibrary("listing1.dll");
+
+   // This call will be intercepted, and the committed virtual memory will be 
+   // tracked.
+   //
+   iBase = (int) VirtualAlloc((void *) iBase, (size_t) iSize, MEM_COMMIT, 
+           PAGE_READWRITE);
+
+   //
+   // Do something interesting here.
+   //
+
+   if (iBase)
+   {
+      // This call will be intercepted, and the relevant tracking updates 
+      // will be made.
+      //
+      VirtualFree((void *) iBase, 0, MEM_RELEASE);
+   }
+   return iBase;
+}
+
+
+

@@ -1,0 +1,297 @@
+Visual Cryptography and Bit-Plane Complexity Segmentation
+by Daniel Stoleru
+
+
+Listing One
+
+def square(matrix, n, d):
+        # returns a square slice of dim d from a matrix
+        # n - square number
+        
+        maxX = len(matrix[0])
+        maxY = len(matrix[:,0])
+
+        xsquares = maxX/d
+        ysquares = maxY/d
+        dy, dx = divmod(n, xsquares)
+        xslc = dx * d
+        yslc = dy * d
+        return matrix[xslc:xslc+d, yslc:yslc+d]
+
+
+Listing Two
+
+
+def writesquare(matrix, square, n):
+        # writes a square of dim d into a bigger matrix
+        # n - square number
+        # returns the matrix with the overwritten sqaure
+        
+        maxX = len(matrix[0])
+        maxY = len(matrix[:,0])
+        sqX = len(square[0])
+        sqY = len(square[:,0])
+        xsquares = maxX/sqX
+        ysquares = maxY/sqY
+        dy, dx = divmod(n, xsquares)
+        xslc = dx * sqX
+        yslc = dy * sqY
+        matrix[xslc:xslc+sqX, yslc:yslc+sqY] = square
+        
+        return matrix
+
+
+Listing Three
+
+
+def complexity(matrix):
+        maxX = len(matrix[0])
+        maxY = len(matrix[:,0])
+        norm = maxX*maxY
+        cmp = 0.
+        first = matrix[0][0]
+        for x in range(maxX):
+            for y in range(maxY):
+                if first != matrix[x][y]:
+                    cmp += 1
+                    first = matrix[x][y]
+        if cmp != 0:
+            cmp /= norm
+        
+        return cmp
+
+
+
+Listing Four
+
+a)
+
+
+def insert_line(where, line, matrix):
+        maxX = len(matrix[0])
+        maxY = len(matrix[:,0])+1
+        if len(line) != maxX:
+            print "[ERR] Unable to append line."
+            sys.exit(1)
+        
+        getback = zeros((maxY, maxX))
+        for y in range(maxY):
+            if y == where:
+                getback[y] = line
+            else:
+                if y < where:
+                    getback[y] = matrix[y]
+                else:
+                    getback[y] = matrix[y-1]
+                
+        return getback
+
+
+b)
+
+def insert_column(where, column, matrix):
+        tmatrix = transpose(matrix)
+        tcolumn = transpose(column)
+        tmpback = insert_line(where, tcolumn[0], tmatrix)
+        return transpose(tmpback)
+
+
+
+
+Listing Five
+
+    def compress(self):
+        """ compress applying BPCS 
+        """
+        
+        noOfSquares = pow(2, self.__seqlength)
+      
+        squares_counter = 0
+        
+        for bpNo in range(self.__imgdepth):
+            # select the bitplane (0 .. image_depth)
+            bplane = self.__bitplane[bpNo]
+            maxX, maxY = bplane.size()
+            
+            # go outwards arround the center and try to find proper regions to embed 
+            for step in range(1, (self.__Xsquares)/2):
+                for y in range(yc-step*qY, yc+(step+1)*qY, qY):
+                
+                    xrange = []
+                    if y != yc - step*qY and y != yc + step*qX:
+                        xrange = [xc - step*qX, xc + step*qX]
+                    else:
+                        xrange = range(xc - step*qX, xc + (step+1)*qX, qX)
+
+                    
+                    for x in xrange:
+                        # extract the square region from the bitplane
+                        # and see if you can embed
+                        matrix_xy = bplane.data()[x:(x+qX), y:(y+qY)]
+                        cmpl = complexity(matrix_xy)
+                        # if you cannot ... go further
+                        if cmpl < self.__limit:
+                            continue
+
+                        toEmbed = zeros((9,9))
+                        
+                        sMessage = "Embed[" + str(squares_counter) + "]:" + str(bpNo) + ":" + str(step) + ":" + str(x) + ":" + str(y) + ":" + str(cmpl) + "\n"
+                        self.eLog(sMessage)
+                        
+                        # write the marked information back to bitplane
+                        bplane.data()[x:(x+qX), y:(y+qY)] = toEmbed
+                        
+                        squares_counter += 1
+
+
+Listing Six
+
+
+    def embed(self, share, bpNo, noOfSquares, lastSeqNo):
+        """ The function actually writes the embedding information
+       into the marked image."""
+        
+        squares_counter = lastSeqNo
+        
+        # select the bitplane (0 .. image_depth)
+        bplane = self.__bitplane[bpNo]
+        maxX, maxY = bplane.size()
+
+        # go outwards arround the center and try to find proper regions to embed 
+        for step in range(1, (self.__Xsquares)/2):
+            for y in range(yc-step*qY, yc+(step+1)*qY, qY):
+            
+                xrange = []
+                if y != yc - step*qY and y != yc + step*qX:
+                    xrange = [xc - step*qX, xc + step*qX]
+                else:
+                    xrange = range(xc - step*qX, xc + (step+1)*qX, qX)
+                
+                for x in xrange:
+                    # extract the square region from the bitplane
+                    # and see if you can embed
+                    matrix_xy = bplane.data()[x:(x+qX), y:(y+qY)]
+                    cmpl = complexity(matrix_xy)
+                    # if you cannot ... go further
+                    if cmpl < self.__limit:
+                        continue
+
+                    # get the next square and embed it into the image 
+                    myslice = square(share, squares_counter, 8)
+
+                    
+                    # create the serial no.
+                    first_column = zeros((9,1))
+                    last_row = zeros((8))
+                    first_column[0][0] = 0
+                    bin_slice = dec2bin(squares_counter, self.__seqlength)
+                    for i in range(self.__seqlength):
+                        if(i < self.__imgdepth):
+                            first_column[i+1][0] = bin_slice[i]
+                        else:
+                            last_row[i-self.__imgdepth] = bin_slice[i]
+
+                    # determine the error correction info
+                    err_code = getErrorCode(myslice)
+                    last_row[5:8] = err_code
+                    
+                    tmpMatrix = insert_line(8, last_row, myslice)
+                    toEmbed = insert_column(0, first_column, tmpMatrix)
+                    
+                    cmpl_new = complexity(toEmbed)
+                    if cmpl_new < self.__limit:
+                        toEmbed ^= Checkerboard(9, 9)
+                        toEmbed[0][0] = 1
+                    cmpl_new = complexity(toEmbed)
+                    
+                    sMessage = "Embed[" + str(squares_counter) + "]:" + str(bpNo) + ":" + str(step) + ":" + str(x) + ":" + str(y) + ":" + str(cmpl_new) + ":" + str(toEmbed[0][0]) + "\n"
+                    self.eLog(sMessage)
+                    
+                    # write the marked information back to bitplane
+                    bplane.data()[x:(x+qX), y:(y+qY)] = toEmbed
+                    
+                    squares_counter += 1
+                    if(squares_counter == noOfSquares):
+                        sMessage = "FINISH " + str(squares_counter) + " squares written.\n"
+                        self.eLog(sMessage)
+                        self.__logFile.close()
+                        return -1
+        return squares_counter
+
+
+
+Listing Seven
+
+
+   def extract(self, rawmatrix, bpNo, share_maxX, share_maxY, mapchecker, lastSeqNo):
+        """  Extracts the embedded  information.
+        Writes and returns a binary matrix.
+        """
+        
+        noOfSquares = (share_maxX/8) * (share_maxY/8)
+        
+        #rawmatrix = zeros((share_maxX, share_maxY))
+        squares_counter = lastSeqNo
+        
+        # select the bitplane (0 .. image_depth)
+
+        bplane = self.__bitplane[bpNo]
+        maxX, maxY = bplane.size()
+          
+        for step in range(1, (self.__Xsquares)/2):
+            for y in range(yc-step*qY, yc+(step+1)*qY, qY):
+                xrange = []
+                if y != yc - step*qY and y != yc + step*qX:
+                    xrange = [xc - step*qX, xc + step*qX]
+                else:
+                    xrange = range(xc - step*qX, xc + (step+1)*qX, qX)
+                
+                for x in xrange:
+                    # extract the square region from the bitplane
+                    # and see if you find any seqNo (as clue that something could be embedded here)
+                    matrix_xy = bplane.data()[x:(x+qX), y:(y+qY)]
+                    cmpl = complexity(matrix_xy)
+                    # if lower complexity ... go further
+                    if cmpl < self.__limit:
+                        continue
+
+                    if (squares_counter >= noOfSquares):
+                        sMessage = "FINISH! Extracted " + str(squares_counter) + " squares.\n"
+                        self.eLog(sMessage)
+                        return -1
+
+                    squares_counter += 1
+                    if matrix_xy[0][0] == 1:
+                        matrix_xy ^= Checkerboard(9, 9)
+
+                    #print matrix_xy   
+                    bin_seqNo = zeros(self.__seqlength)
+            
+                    for i in range(self.__seqlength):
+                        if(i < self.__imgdepth):
+                            bin_seqNo[i] = matrix_xy[i+1][0]
+                        else:
+                            bin_seqNo[i] = matrix_xy[self.__imgdepth, i - self.__imgdepth + 1]
+                            
+                    seqNo = bin2dec(bin_seqNo)
+                    
+                    # the sequence number (seqNo) may not be greater than noOfSquares
+                    if seqNo > noOfSquares or mapchecker.getFlag(seqNo) == 1:
+                        self.__okImage = 1
+                        sMessage = "Wrong information detected in " + str(bpNo) + " coordinates (" + str(x) + ", " + str(y) + "): " + str(seqNo) + "\n"
+                        self. tLog(sMessage)
+                    else:
+                        mapchecker.setcheckmap(seqNo, 1)
+                       
+                    util_info = matrix_xy[0:self.__imgdepth, 1:self.__imgdepth+1]
+                    
+                    self.checksquare(util_info, bpNo, x, y)
+                    
+                    rawmatrix = writesquare(rawmatrix, util_info, seqNo)
+                    sMessage = "Extract[" + str(seqNo) + "]:" + str(bpNo) + ":" + str(step) + ":" + str(x) + ":" + str(y) + ":" + str(cmpl) + ":" + str(matrix_xy[0][0]) + "\n"
+                    self.eLog(sMessage)
+
+        return squares_counter
+1
+
+
