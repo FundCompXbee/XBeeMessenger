@@ -45,6 +45,7 @@ private:
     QString username;
     QString currentChannel;
     Client client; 
+    bool connected;
 };
 
 #endif // MESSENGER_H
