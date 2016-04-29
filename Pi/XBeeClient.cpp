@@ -8,11 +8,9 @@ int main() {
   std::cout << "Ready to test" << std::endl;
   std::string str;
 
-  std::set<std::string> servers = client.getServers();
+  std::string servers = client.getServers();
   std::cout << "Servers:" << std::endl;
-  for (auto server : servers) {
-    std::cout << "\t" << server << std::endl;
-  }
+  std::cout << servers;
   std::cout << "Connect to: ";
   std::getline(std::cin, str);
   client.connectToServer(str);
