@@ -1,7 +1,16 @@
+// Team: XBeeMessenger
+// Course: Fundamentals of Computing II
+// Assignment: Final Project
+// Purpose: This is a light weight testing client.
+//          FOR TESTING AND EXAMPLES ONLY
+
 #include "client.hpp"
 #include <string>
 #include <iostream>
 #include <set>
+
+// this is a light weight testing client.
+// FOR TESTING AND EXAMPLES ONLY
 
 int main() {
   Client client("conrad", 38400);
@@ -14,22 +23,7 @@ int main() {
   std::cout << "Connect to: ";
   std::getline(std::cin, str);
   client.connectServer(str);
-  std::cout << "Response: " << client.retrieveResponse() << std::endl;
-
-  // std::set<std::string> channels = client.getChannels();
-  // std::cout << "Channels:" << std::endl;
-  // for (auto channel : channels) {
-  //   std::cout << "\t" << channel << std::endl;
-  // }
-  // std::cout << "\tNone" << std::endl;
-  // while (channels.count(str) == 0 && str != "None") {
-  //   std::cout << "Join: ";
-  //   std::getline(std::cin, str);
-  // }
-  // if (str != "None") {
-  //   client.joinChannel(str);
-  //   std::cout << client.retrieveResponse() << std::endl;
-  // }
+  std::cout << "Response: " << client.retrieveEnvelope().getExpression() << std::endl;
 
   std::string dest;
   std::string expr;
@@ -51,7 +45,7 @@ int main() {
     // std::cout << "Sent Expression\n"
     //           << "Waiting for reply..." << std::endl
     //           << "Received reply: '" << client.retrieveResponse() << "'" << std::endl;
-    std::cout << "Response: " << client.retrieveResponse() << std::endl;
+    std::cout << "Response: " << client.retrieveEnvelope().getExpression() << std::endl;
   }
 
 }

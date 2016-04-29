@@ -1,3 +1,9 @@
+// Team: XBeeMessenger
+// Course: Fundamentals of Computing II
+// Assignment: Final Project
+// Purpose: Interface for clients who connect to servers, make
+//          requests, and listen for responses
+
 #ifndef CLIENT
 #define CLIENT
 
@@ -6,38 +12,38 @@
 #include "envelope.hpp"
 #include <string>
 #include <set>
-#include <chrono>
-#include <iostream>
 
 class Client {
 public:
-  Client(std::string, int);  // constructor
+  Client(std::string userName, int baud);
 
-  void setUsername(std::string); // sets client's userName
-  std::string getServers(); // returns the set of servers on the network
-  void connectServer(std::string); // connects to the server and changes te serverName
-  void disconnectServer(); // disconnects from the server and changes te serverName
+  void setUsername(std::string newUsername);
+  std::string getServers(); // Returns newline separated list of servers
+  void connectServer(std::string serverName);
+  void disconnectServer();
 
-  // std::set<std::string> getChannels();
-  void joinChannel(std::string); // adds a channel to the list of channels
-  void createChannel(std::string); // adds a channel to the list of channels
+  // Start listening and contributing to a channel
+  void joinChannel(std::string channelName);
+   // Create a channel and join it
+  void createChannel(std::string channelName);
 
-  void sendExpression(std::string, std::string); // biulds Envelope and sends expression
-  std::string retrieveResponse(std::string destinationToListenFor); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
-  std::string retrieveResponse(); // retrieves expression from Envelope in serial  when evelope has the clients userName as destination
-  Envelope retrieveEnvelope(); // reads from serial until the delimiter, and returns an Envelope built from the retrieved string
+  // Send an IRC Command expression as a request to a channel or
+  // server
+  void sendExpression(std::string destination, std::string expression);
+
+  // Waits for a broadcast relevant to the client and returns it as an
+  // envelope
+  Envelope retrieveEnvelope();
 private:
-  static const char delimiter;  // sets delimiter, until which the serial is going to read in order to retrieve messages
+  static const char delimiter;  // Signals the end of a transmission
 
-  Serial serial; // creates serial
+  Serial serial; // Handles data reception and broadcasting
 
   std::string userName;
-  std::string serverName;
-  std::set<std::string> channels;
+  std::string serverName; // Server the client is currently connected to
+  std::set<std::string> channels; // All channels the client has joined
 
-  // void sendChannelRequest(std::string);
-  // void sendServerRequest(std::string);
-  void sendEnvelope(Envelope); // writes envelope in  string fromat alongside delimiter to serial
+  void sendEnvelope(Envelope); // Broadcasts an Envelope
 
 
 };

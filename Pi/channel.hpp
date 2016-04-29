@@ -1,3 +1,9 @@
+// Team: XBeeMessenger
+// Course: Fundamentals of Computing II
+// Assignment: Final Project
+// Purpose: Interface for channels: shared spaces for users to
+//          communicate in
+
 #ifndef CHANNEL
 #define CHANNEL
 
@@ -7,16 +13,17 @@
 
 class Channel {
 public:
-  Channel(std::string); // constructor, which initializes the name of the channel
-  std::string getName(); // returns name of the channel
-  // maybe const ref?
-  void addUser(std::string); // adds name : User key value pair to map of users in the channel
-  void removeUser(std::string); // removes a User from the map
-  bool hasUser(std::string);  // returns true if user key is in users map
+  Channel(std::string channelName);
+  std::string getName();
+
+  void addUser(std::string userName);
+  void removeUser(std::string userName);
+  bool hasUser(std::string userName);
 private:
   std::string name; // channel name
-  std::map<std::string, User> users; // map that stores which users are at a given channel
 
+  // map that stores which users have joined the channel
+  std::map<std::string, User> users;
 };
 
 #endif

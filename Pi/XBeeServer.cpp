@@ -1,25 +1,20 @@
-/***********************************
-* Student: Aaron Crawfis
-* netID: acrawfis
-* Date: 15 March 2016
-* Class: CSE 20212 Final Project
-* File: piServer.cpp
-************************************/
+// Team: XBeeMessenger
+// Course: Fundamentals of Computing II
+// Assignment: Final Project
+// Purpose: Main execution of a server
 
 #include <iostream>
 #include "server.hpp"
-
-using namespace std;
 
 #define BAUD_RATE 38400
 
 int main()
 {
-    // Create Server
-    cout << "Opening Pi Server" << endl;
-    Server s(BAUD_RATE);
+  // Create Server
+  std::cout << "Opening Pi Server" << std::endl;
+  Server s(BAUD_RATE);
 
-    // Run Server
-    cout << "Running Pi Server" << endl;
-    s.run();
+  // Run Server
+  std::cout << "Running Pi Server" << std::endl;
+  s.run();
 }

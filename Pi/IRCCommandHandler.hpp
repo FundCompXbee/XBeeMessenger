@@ -1,3 +1,9 @@
+// Team: XBeeMessenger
+// Course: Fundamentals of Computing II
+// Assignment: Final Project
+// Purpose: Interface for handling IRC Command expressions and
+//          bookeeping for users and channels
+
 #ifndef IRCCOMMANDHANDLER
 #define IRCCOMMANDHANDLER
 
@@ -7,8 +13,6 @@
 #include <map>
 #include "channel.hpp"
 #include "user.hpp"
-
-#include <iostream>
 
 class IRCCommandHandler {
 public:
@@ -25,7 +29,6 @@ private:
   std::map<std::string, User> users; // channel users should be references here
   std::map<std::string, Channel> channels;
   // For parsing
-  bool validExpression();
   void parse();
   // For functionality
   std::string message();

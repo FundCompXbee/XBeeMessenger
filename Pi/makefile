@@ -1,3 +1,9 @@
+# Team: XBeeMessenger
+# Course: Fundamentals of Computing II
+# Assignment: Final Project
+# Purpose: Compilation of client and server with debug and deliverable
+#					 targets utlizing respective flags
+
 CLIENTEXE=XBeeClient.exe
 CLIENTOBJS=XBeeClient.o serial.o envelope.o client.o
 
