@@ -825,11 +825,6 @@
     <property name="wordWrap">
      <bool>true</bool>
     </property>
-    <item>
-     <property name="text">
-      <string>server</string>
-     </property>
-    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
