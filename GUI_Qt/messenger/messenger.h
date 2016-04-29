@@ -15,6 +15,7 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include "../../Pi/client.hpp"
+#include "../../Pi/envelope.hpp"
 #include <set>
 #include <QString>
 

@@ -53,28 +53,19 @@ void Messenger::on_sendButton_clicked()
             username = command[1];
         }
         else if (command[0] == "\\join") {
-            client.sendExpression("server", "JOINCHANNEL " + command[1].toStdString() + " " + username.toStdString());
+
+            client.joinChannel(command[1].toStdString());
             currentChannel = command[1];
             ui->channelsListWidget->addItem(command[1]);
         }
         else if (command[0] == "\\create") {
-            client.sendExpression("server", "CREATECHANNEL " + command[1].toStdString() + " " + username.toStdString());
+            client.createChannel(command[1].toStdString());
             ui->channelsListWidget->addItem(command[1]);
         }
 
         ui->helpTextBrowser->clear();
     } else if (connectedToServer) {
 
-        //Set text colors and display username followed by message
-        ui->messageView->setTextColor(QColor("#73A7E2"));
-        ui->messageView->textCursor().insertText(username);
-        ui->messageView->textCursor().insertText(":   ");
-        ui->messageView->setTextColor(QColor("#EAE2D2"));
-        ui->messageView->textCursor().insertText(msgString);
-        ui->messageView->textCursor().insertText("\n");
-
-        //Make sure that the message view scrolls to the bottom
-        ui->messageView->ensureCursorVisible();
 
         client.sendExpression(currentChannel.toStdString(), "MSG "+get_msgString());
     }
@@ -82,7 +73,7 @@ void Messenger::on_sendButton_clicked()
     if (!connectedToServer) {
         client.connectToServer(get_msgString());
         connectedToServer = true;
-        ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(client.retrieveResponse()));
+        //ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(client.retrieveResponse()));
     }
 
     //Remove the user's message from the text edit box at the bottom
@@ -106,12 +97,32 @@ std::string Messenger::get_msgString()
 //Check for new messages
 void Messenger::receiveMessageFunction()
 {
+      std::string displayString;
+      bool isServer;
+      bool isActiveChannel;
     while (true) {
         //ui->messageView->textCursor().insertText("Checking for new message...\n");
-        QThread::sleep(10);
-        std::string displayString;
-        displayString = client.retrieveResponse();
-        ui->messageView->textCursor().insertText(QString::fromStdString(displayString));
+        //QThread::sleep(10);
+
+        Envelope envelope = client.retrieveEnvelope();
+
+        isServer = (envelope.getSender() == "server");
+        isActiveChannel = (envelope.getDestination() == currentChannel.toStdString());
+
+        if (isActiveChannel) {
+            //Set text colors and display username followed by message
+            ui->messageView->setTextColor(QColor("#73A7E2"));
+            ui->messageView->textCursor().insertText(QString::fromStdString(envelope.getSender()));
+            ui->messageView->textCursor().insertText(":   ");
+            ui->messageView->setTextColor(QColor("#EAE2D2"));
+            ui->messageView->textCursor().insertText(QString::fromStdString(envelope.getExpression()));
+            ui->messageView->textCursor().insertText("\n");
+        } else if (isServer) {
+            ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(envelope.getExpression()));
+        }
+
+        //Make sure that the message view scrolls to the bottom
+        ui->messageView->ensureCursorVisible();
     }
 }
 
@@ -119,6 +130,7 @@ void Messenger::receiveMessageFunction()
 void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 {
     currentChannel = ui->channelsListWidget->selectedItems()[0]->text();
+    std::cout << "current channel is : " << currentChannel.toStdString();
     ui->messageView->setTextColor(QColor("#DB92DD"));
     ui->messageView->textCursor().insertText("____________________________________________________________________\n");
     ui->messageView->textCursor().insertText("Channel: ");

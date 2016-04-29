@@ -8,8 +8,11 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    //Instantiate messenger object, which is the GUI window
     Messenger w;
 
+    //run the messenger Gui
     w.show();
 
     return a.exec();
