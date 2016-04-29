@@ -16,21 +16,13 @@ Messenger::Messenger(QWidget *parent) :
     ui->setupUi(this);
     ui->channelsTextBrowser->textCursor().insertText("Channels: \n");
 
-    std::set<std::string> servers = client.getServers();
-    std::string serverList = "Available Servers: \n";
-    //ui->helpTextBrowser->textCursor().insertText("Available Servers: \n");
-    for (std::string entry : servers) {
-        serverList.append(entry + "\n")  ;
-        //ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(entry));
-        //ui->helpTextBrowser->textCursor().insertText("\n");
-    }
+    std::string servers = client.getServers();
 
     bool ok;
-    QString text = QInputDialog::getText(this, "Connect to Server",
-                                         QString::fromStdString(serverList), QLineEdit::Normal,
-                                         "", &ok);
+    QString text = QInputDialog::getText(this, "Connect to Server", QString::fromStdString("Available Servers: " + serverList),
+                                         QLineEdit::Normal, "", &ok);
+
     if (ok && !text.isEmpty()) {
-        server = text;
         client.connectToServer(text.toStdString());
     }
 
@@ -53,16 +45,10 @@ void Messenger::on_sendButton_clicked()
     //Get the string that the user typed into the text edit box
     msgString = ui->inputText->toPlainText();
 
-    client.sendExpression(currentChannel.toStdString(), "MSG "+get_msgString());
+    client.sendExpression(currentChannel.toStdString(), "MSG "+ msgString.toStdString());
 
     //Remove the user's message from the text edit box at the bottom
     ui->inputText->clear();
-}
-
-//Convert user's message from a QString to and std::string
-std::string Messenger::get_msgString()
-{
-    return msgString.toStdString();
 }
 
 //Check for new messages
@@ -108,48 +94,33 @@ void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 void Messenger::on_actionChange_Name_triggered()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, "Change Username",
-                                         "User name:", QLineEdit::Normal,
-                                         username, &ok);
+    QString text = QInputDialog::getText(this, "Change Username", "User name:", QLineEdit::Normal, username, &ok);
     if (ok && !text.isEmpty()) {
         username = text;
         client.setUsername(username.toStdString());
-        client.connectToServer(server.toStdString());
     }
-    ui->helpTextBrowser->textCursor().insertText("Changed user name to: \n");
-    ui->helpTextBrowser->textCursor().insertText(username);
-    ui->helpTextBrowser->textCursor().insertText("\n");
 }
 
 //Join channel command
 void Messenger::on_actionJoin_Channel_triggered()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, "Join Channel",
-                                         "Join channel: ", QLineEdit::Normal,
-                                         "", &ok);
+    QString text = QInputDialog::getText(this, "Join Channel", "Join channel: ", QLineEdit::Normal, "", &ok);
+
     if (ok && !text.isEmpty()) {
         client.joinChannel(text.toStdString());
         ui->channelsListWidget->addItem(text);
     }
-    ui->helpTextBrowser->textCursor().insertText("Joined channel: \n");
-    ui->helpTextBrowser->textCursor().insertText(text);
-    ui->helpTextBrowser->textCursor().insertText("\n");
-
 }
 
 void Messenger::on_actionCreate_Channel_triggered()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, "Create Channel",
-                                         "Create channel: ", QLineEdit::Normal,
-                                         "", &ok);
+    QString text = QInputDialog::getText(this, "Create Channel", "Create channel: ", QLineEdit::Normal, "", &ok);
+
     if (ok && !text.isEmpty()) {
         client.createChannel(text.toStdString());
         ui->channelsListWidget->addItem(text);
     }
-    ui->helpTextBrowser->textCursor().insertText("Created channel: \n");
-    ui->helpTextBrowser->textCursor().insertText(text);
-    ui->helpTextBrowser->textCursor().insertText("\n");
 }
 

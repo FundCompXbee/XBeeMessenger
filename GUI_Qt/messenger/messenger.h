@@ -30,7 +30,6 @@ class Messenger : public QMainWindow
 public:
     explicit Messenger(QWidget *parent = 0);
     ~Messenger();
-    std::string get_msgString();
     void receiveMessageFunction();
 
 private slots:
@@ -45,9 +44,7 @@ private:
     QString msgString;
     QString username;
     QString currentChannel;
-    Client client;
-    QString server;
-    bool connectedToServer;
+    Client client; 
 };
 
 #endif // MESSENGER_H
