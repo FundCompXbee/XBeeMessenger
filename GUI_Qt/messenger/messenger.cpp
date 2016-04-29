@@ -15,15 +15,36 @@ Messenger::Messenger(QWidget *parent) :
     ui->setupUi(this);
     ui->channelsTextBrowser->textCursor().insertText("Channels: \n");
 
-    std::string servers = client.getServers();
+    std::string servers;
+    bool badmessage = true;
+
+    while(badmessage) {
+        try {
+            servers = client.getServers();
+            badmessage = false;
+        } catch(...) {
+            std::cout << "caught failed getServers() call" << std::endl;
+            continue;
+        }
+    }
 
     bool ok;
     QString text = QInputDialog::getText(this, "Connect to Server", QString::fromStdString("Available Servers: " + servers),
                                          QLineEdit::Normal, "", &ok);
-
+    badmessage = true;
     if (ok && !text.isEmpty()) {
-        client.connectServer(text.toStdString());
+        while(badmessage) {
+            try {
+                client.connectServer(text.toStdString());
+                badmessage = false;
+            } catch(...) {
+                std::cout << "caught failed connectServers() call" << std::endl;
+                continue;
+            }
+        }
     }
+
+    connected = true;
 
     //start concurrent thread that checks for new messages on GUI startup
     extern void receiveMessageFuntion();
@@ -35,7 +56,11 @@ Messenger::~Messenger()
 {
     //leave channels
     //and disconnect from server
+    std::cout << "destructing GUI" << std::endl;
 
+    client.disconnectServer();
+      connected = false;
+    //client.retrieveEnvelope();
     delete ui;
 }
 
@@ -56,8 +81,13 @@ void Messenger::receiveMessageFunction()
 {
     bool isServer;
     bool isActiveChannel;
-    while (true) {
-        Envelope envelope = client.retrieveEnvelope();
+    while (connected) {
+        Envelope envelope;
+        try {
+            envelope = client.retrieveEnvelope();
+        } catch(...) {
+            continue;
+        }
 
         isServer = (envelope.getSender() == "server");
         isActiveChannel = (envelope.getDestination() == currentChannel.toStdString());
@@ -77,6 +107,8 @@ void Messenger::receiveMessageFunction()
         //Make sure that the message view scrolls to the bottom
         ui->messageView->ensureCursorVisible();
     }
+
+    std::cout << "End of concurrent thread" << std::endl;
 }
 
 void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
@@ -97,7 +129,7 @@ void Messenger::on_actionChange_Name_triggered()
     bool ok;
     QString text = QInputDialog::getText(this, "Change Username", "User name:", QLineEdit::Normal, username, &ok);
     if (ok && !text.isEmpty()) {
-        client.setUsername(username.toStdString());
+        client.setUsername(text.toStdString());
         QThread::sleep(1);
         username = text;
     }
