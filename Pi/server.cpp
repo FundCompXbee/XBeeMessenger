@@ -21,12 +21,10 @@ Server::Server(int baud) :
   }
   else {
     FILE_LOG(logERROR) << "Error: Could not set name from hostname";
-    //std::cerr << "Error: Could not set name from hostname" << std::endl;
     exit(EXIT_FAILURE);
   }
 
   FILE_LOG(logDEBUG) << "Server' " << name << "' Runing... ";
- // std::cout << "Server '" << name << "' Running..." << std::endl;
 }
 
 
@@ -38,36 +36,33 @@ void Server::run() {
     receivedEnv = Envelope(retrieveSerialData());
     //Verify envelope intended for this server
     FILE_LOG(logDEBUG) << "Verifying Request is from Server.";
-    //std::cout << "Verifying request is for this server" << std::endl;
     if  (receivedEnv.getServer() != name && receivedEnv.getServer() != "") {
       FILE_LOG(logDEBUG) << "NOT for this server CONFIRMED, SKIPPING";
-      //std::cout << "NOT for this server CONFIRMED. SKIPPING" << std::endl;
       continue;
     }
-
-    std::cout << "For this server CONFIRMED" << std::endl;
-    std::cout << "Attempting to verfiy the request" << std::endl;
+	FILE_LOG(logDEBUG) << "For this server CONFIRMED";
+	FILE_LOG(logDEBUG) << "Attempting to verfiy the request";
     result = verifyRequest(receivedEnv);
-    std::cout << "Request Verification DONE" << std::endl;
+	FILE_LOG(logDEBUG) << "Request Verification DONE";
     if (result == "server") {
-      std::cout << "Envelope passed verification as server request..." << std::endl;
-      std::cout << "Retrieved Envelope: '" << receivedEnv.toString() << "'" << std::endl;
+	  FILE_LOG(logDEBUG) << "Envelope passed verification as server request...";
+	  FILE_LOG(logDEBUG) << "Retrieved Envelope: '" << receivedEnv.toString() << "'" ;
       result = IRCHandler(receivedEnv.getExpression());
-      std::cout << "IRCHandler Result: '" << result << "'" << std::endl;
+	  FILE_LOG(logDEBUG) << "IRCHandler Result: '" << result << "'" ;
       broadcastEnv = Envelope(name, receivedEnv.getSender(), "server", result);
     }
     else if (result == "channel") {
-      std::cout << "Envelope passed verification as channel request ..." << std::endl;
-      std::cout << "Retrieved Envelope: '" << receivedEnv.toString() << "'" << std::endl;
-      result = IRCHandler(receivedEnv.getExpression());
-      std::cout << "IRCHandler Result: '" << result << "'" << std::endl;
+	  FILE_LOG(logDEBUG) << "Envelope passed verification as channel request ..." ;
+      FILE_LOG(logDEBUG) << "Retrieved Envelope: '" << receivedEnv.toString() << "'";
+      result = IRCHandler(receivedEnv.getExpression());	
+	  FILE_LOG(logDEBUG) << "IRCHandler Result: '" << result << "'" << std::endl;
       broadcastEnv = Envelope(name, receivedEnv.getDestination(),
                               receivedEnv.getSender(), result);
     }
     else {
-      std::cout << "Envelope failed verification..." << std::endl;
+	  FILE_LOG(logDEBUG) <<	"Envelope failed verification..." ;
       broadcastEnv = Envelope(name, receivedEnv.getSender(), "server", result);
-      std::cout << "Failure notification sent..." << std::endl;
+	  FILE_LOG(logDEBUG) <<	"Failure notification sent...";
     }
 
     broadcastSerialData(broadcastEnv.toString());
@@ -84,14 +79,12 @@ std::string Server::verifyRequest(Envelope& env) {
 // broadcasts message by writing data to the serial buffer
 void Server::broadcastSerialData(std::string data) {
   FILE_LOG(logDEBUG) << "Attempting bradcast...";
-  //std::cout << "Attempting broadcast..." << std::endl;
   serial.write(data+delimiter);
 }
 
 // retrives string from serial up until the delimiter
 std::string Server::retrieveSerialData() {
   FILE_LOG(logDEBUG) << "Attempting retrieval...";
-  //std::cout << "Attempting retrieval..." << std::endl;
   return serial.readUntil(delimiter);
 }
 

@@ -1,5 +1,10 @@
 # // sets delimiter, until which the serial is going to read in order to retrieve messages
 #include "client.hpp"
+#ifdef LOG1
+#include "../loggerTesting/log1.h"
+#else
+#include "../loggerTesting/log.h"
+#endif
 
 const char Client::delimiter{'~'}; // sets delimiter, until which the serial is going to read in order to retrieve messages
 
@@ -7,10 +12,12 @@ Client::Client(std::string userName, int baud) : // constructor
   serial("/dev/ttyACM0", baud),   // initializes serial-port
   userName(userName)      // sets client's userName
 {
-  // std::cout << "finished constructing client '" << userName << std::endl;
+  FILELog::ReportingLevel() = FILELog::FromString(/*argv[1] ? argv[1] : */"DEBUG1"); // initializing logger
+  FILE_LOG(logDEBUG) << "Finished constructing client '" << userName << "'.";
 }
 
 void Client::setUsername(std::string name) {  // sets client's userName
+  FILE_LOG(logDEBUG) << "Sending request to set username to '" << name << "'.";
   sendExpression("server", "CHANGENAME "+name+" "+userName);
   userName = name;
 }
@@ -18,45 +25,40 @@ void Client::setUsername(std::string name) {  // sets client's userName
 // retrieves the servers on the network by making a ping request and retrieving the server response
 std::string Client::getServers() {
   std::string servers;
-  // std::cout << "Attempting to get servers" << std::endl;
-  // std::cout << "Sending Ping" << std::endl;
-  // for (int i{0}; i < 3; ++i) {
-  //   sendExpression("server","PING");
-  //   serial.readUntil(delimiter);
-  // }
-
+  FILE_LOG(logDEBUG) << "Attempting to get servers";
+  FILE_LOG(logDEBUG) << "Sending Ping";
   sendExpression("server","PING");
   Envelope pong;
   try {
-    std::cout << "about to get ping response" << std::endl;
+    FILE_LOG(logDEBUG) << "About to get ping response." ;
     pong = retrieveEnvelope();
   }
   catch (...) {
-    std::cout << "failed to get ping response, threw exception" << std::endl;
+    FILE_LOG(logDEBUG) <<  "Failed to get ping response, threw exception." ;
     throw;
   }
-  // std::cout << "received server pong envelope '" << pong.toString() << "'" << std::endl;
+  FILE_LOG(logDEBUG) << "received server pong envelope '" << pong.toString() << "'";	
   try {
-    std::cout << "About to try pong.getServer()" << std::endl;
+	FILE_LOG(logDEBUG) << "About to try pong.getServer()";
     servers += pong.getServer()+"\n";
   }
   catch (...) {
-    std::cout << "faild to pong.getServer() throwing exception" << std::endl;
+	FILE_LOG(logDEBUG) << "Faild to pong.getServer() throwing exception.";
     throw;
   }
-  std::cout << "everything went fin in getServers()" << std::endl;
-    // std::cout << "returning server set" << std::endl;
+  FILE_LOG(logDEBUG) << "Everything went fin in getServers().";
   return servers;
 }
 
 // connects to the server by sending an expressing and changes the serverName associated with the client
 void Client::connectServer(std::string server) {
-    // std::cout << "Sending a request to '" << server << "' for connection" << std::endl;
+  FILE_LOG(logDEBUG) << "Sending a request to '" << server << "' for connection." ;
   sendExpression("server","CONNECT "+userName);
   serverName = server;
 }
 
 void Client::disconnectServer() {
+  FILE_LOG(logDEBUG) << "Sending a request to '" << serverName << "' for disconnection." ;
   sendExpression("server", "DISCONNECT "+serverName+" "+userName);
   serverName = "";
 }
@@ -82,13 +84,13 @@ void Client::disconnectServer() {
 
 // adds a channel to the set of channels
 void Client::joinChannel(std::string channel) {
-    // std::cout << "Attempting to join a channel '" << channel << "'" << std::endl;
+  FILE_LOG(logDEBUG) << "Sending a request to join '" << channel << "'." ;
   sendExpression("server", "JOINCHANNEL "+channel+" "+userName);
   channels.insert(channel);
 }
 
 void Client::createChannel(std::string channel) {
-  //assumes success
+  FILE_LOG(logDEBUG) << "Sending a request to join '" << channel << "'." ;
   sendExpression("server", "CREATECHANNEL "+channel+" "+userName);
   channels.insert(channel);
 }
@@ -103,32 +105,29 @@ void Client::sendExpression(std::string destination, std::string expression) {
   //   std::cout << "sending a channel request" << std::endl;
   //   sendChannelRequest(expression);
   // }
+  FILE_LOG(logDEBUG) << "Sending envelope to '" << destination << "'." ;
   sendEnvelope(Envelope(serverName, destination, userName, expression));
 }
 
 
 std::string Client::retrieveResponse() {
-    // std::cout << "Attempting to retrieve a response envelope" << std::endl;
+  FILE_LOG(logDEBUG) << "Attempting to retrieve a response envelope.";
   Envelope response(retrieveEnvelope());
-      // std::cout << "Response envelope received......" << std::endl;
-    // std::cout << "RELEVANT response envelope received" << std::endl;
-
-    // std::cout << "converting envelope to string and returning" << std::endl;
+  FILE_LOG(logDEBUG) << "Response envelope received...";
   return response.getExpression();
 }
+
 // calls retrieveEnvelope() to retrieve Enveloped from the serial until the Envelope's destiantion matches that of the client, then returns that Envelope's expression
 std::string Client::retrieveResponse(std::string destinationToListenFor) {
-    // std::cout << "Attempting to retrieve a response envelope" << std::endl;
-  Envelope response(retrieveEnvelope());
+  FILE_LOG(logDEBUG) << "Attempting to retrieve a response envelope.";
+  Envelope response(retrieveEnvelope());s
   while (response.getDestination() != destinationToListenFor) {
-      // std::cout << "Response envelope received......" << std::endl;
+    FILE_LOG(logDEBUG) << "Response envelope received...";
     response = retrieveEnvelope();
   }
-    // std::cout << "RELEVANT response envelope received" << std::endl;
-
-    // std::cout << "converting envelope to string and returning" << std::endl;
   return response.getExpression();
 }
+
 
 // void Client::sendChannelRequest(std::string command) {
 //   sendEnvelope(Envelope(serverName, channelName, userName, command));
@@ -139,9 +138,11 @@ std::string Client::retrieveResponse(std::string destinationToListenFor) {
 //   sendEnvelope(Envelope(serverName, "server", userName, command));
 // }
 
+
+
 // writes envelope in  string fromat alongside delimiter to serial
 void Client::sendEnvelope(Envelope env) {
-    // std::cout << "Attempting to send envelope '" << env.toString() << "'" << std::endl;
+  FILE_LOG(logDEBUG) << "Attemting to send envelope '" << env.toString() << "'.";
   serial.write(env.toString()+delimiter);
 }
 
@@ -149,36 +150,33 @@ void Client::sendEnvelope(Envelope env) {
 Envelope Client::retrieveEnvelope() {
   Envelope response;
   std::string data;
-  std::cout << "about to while loop for retrievEnvelope" << std::endl;
+
   while (response.getDestination() != userName &&
          channels.count(response.getDestination()) == 0) {
-
-    // std::cout << "Attempting to retrieve an envelope" << std::endl;
-
-    // std::cout << "  retrieved string: '" << resp << "'" << std::endl;
-    // std::cout << "  Attempting to convert to envelope" << std::endl;
+	FILE_LOG(logDEBUG) << "Attemting to retrie envelope.";;
+    FILE_LOG(logDEBUG) << "Attempting to convert to envelope.";
     try {
+	  FILE_LOG(logDEBUG) << "About to retrieve data for retrieveEnvelope.";
       std::cout << "about to retrieve data for retrieveEnvelope" << std::endl;
       data = serial.readUntil(delimiter);
     }
     catch (...) {
-      std::cout << "failed to get data for retrieveEnvelope, throwing" << std::endl;
+	  FILE_LOG(logDEBUG) << "Failed to get data for retrieveEnvelope, throwing.";
       throw;
     }
-    std::cout << "successfully got data for retrieveEnvelope()" << std::endl;
+	FILE_LOG(logDEBUG) << "Successfully got data for retrieveEnvelope().";
 
     try {
-      std::cout << "about to convert data to envelope for retrieveEnvelope()" << std::endl;
+	  FILE_LOG(logDEBUG) << "About to convert data to envelope for retrieveEnvelope().";
       response = Envelope(data);
-      std::cout << "response envelope.tostring = '"+response.toString()+"'"<<std::endl;
+	  FILE_LOG(logDEBUG) << "Response envelope.tostring = '"+response.toString()+"'.";
     }
     catch (...) {
-      std::cout << "failed to convert data to envelope for retrieveEnvelope(), throwing" << std::endl;
+	  FILE_LOG(logDEBUG) << "Failed to convert data to envelope for retrieveEnvelope(), throwing.";
       throw;
     }
-    // std::cout << "  Conversion complete" << std::endl;
-      // std::cout << "Response envelope received......" << std::endl;
+	FILE_LOG(logDEBUG) << "Conversion complete.";
+	FILE_LOG(logDEBUG) << "Response envelope received...";
   }
-  //std::cout << "done with retrieveEnvelope, isObject = '"+( ? "true":"false")+"'"<< std::endl;
   return response;
 }

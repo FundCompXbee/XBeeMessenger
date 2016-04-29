@@ -1,4 +1,9 @@
 #include "envelope.hpp"
+#ifdef LOG1
+#include "../loggerTesting/log1.h"
+#else
+#include "../loggerTesting/log.h"
+#endif
 
 /*
  Envelope Class inherits from the Json:Value class and overloads
@@ -8,14 +13,16 @@
 
 
 Envelope::Envelope() { // default contructor
+  FILELog::ReportingLevel() = FILELog::FromString(/*argv[1] ? argv[1] : */"DEBUG1"); // initializing logger
 }
 
 // contructor that builds Envelope from string
 Envelope::Envelope(std::string str) {
-  std::cout << "Attempting to convert '" << str << "' to an envelope" << std::endl;
+  FILELog::ReportingLevel() = FILELog::FromString(/*argv[1] ? argv[1] : */"DEBUG1"); // initializing logger
+  FILE_LOG(logDEBUG) << "Attempting to convert '" << str << "' to an envelope." ;
   std::stringstream s(str);
   Json::operator>>(s,*this);
-  std::cout << "Envelope Conversion Complete" << std::endl;
+  FILE_LOG(logDEBUG) << "Envelope Conversion Complete."; 
 }
 
 // constructor that builds Envelope from paramaeters
@@ -69,15 +76,15 @@ Json::Value& Envelope::operator[](const char* str) {
 // overloading Json:Value:swap fuction
 void Envelope::swap(Envelope& src) {
   try {
-    std::cout << "trying to swap envelope '"+src.toString()+"'" << std::endl;
+	FILE_LOG(logDEBUG) << "Trying to swap envelope '"+src.toString()+"'.";
     if (!src.isObject()) {
-      std::cout << "env is not object, returning" << std::endl;
+	  FILE_LOG(logDEBUG) << "Env is not object, returning";
       return;
     }
     Json::Value::swap(src);
   }
   catch (...) {
-    std::cout << "failed swap envelope, throwing" << std::endl;
+	FILE_LOG(logDEBUG) << "Failed swap envelope, throwing" << std::endl;
     throw;
   }
 }
