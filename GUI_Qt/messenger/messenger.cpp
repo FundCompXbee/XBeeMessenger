@@ -10,8 +10,7 @@ Messenger::Messenger(QWidget *parent) :
     ui(new Ui::Messenger),
     username("conrad"),
     currentChannel("server"),
-    client(username.toStdString(), 38400),
-    connectedToServer(false)
+    client(username.toStdString(), 38400)
 {
     ui->setupUi(this);
     ui->channelsTextBrowser->textCursor().insertText("Channels: \n");
@@ -19,11 +18,11 @@ Messenger::Messenger(QWidget *parent) :
     std::string servers = client.getServers();
 
     bool ok;
-    QString text = QInputDialog::getText(this, "Connect to Server", QString::fromStdString("Available Servers: " + serverList),
+    QString text = QInputDialog::getText(this, "Connect to Server", QString::fromStdString("Available Servers: " + servers),
                                          QLineEdit::Normal, "", &ok);
 
     if (ok && !text.isEmpty()) {
-        client.connectToServer(text.toStdString());
+        client.connectServer(text.toStdString());
     }
 
     //start concurrent thread that checks for new messages on GUI startup
@@ -36,6 +35,7 @@ Messenger::~Messenger()
 {
     //leave channels
     //and disconnect from server
+
     delete ui;
 }
 
@@ -72,6 +72,7 @@ void Messenger::receiveMessageFunction()
             ui->messageView->textCursor().insertText("\n");
         } else if (isServer) {
             ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(envelope.getExpression()));
+            ui->helpTextBrowser->textCursor().insertText("\n\n");
         }
         //Make sure that the message view scrolls to the bottom
         ui->messageView->ensureCursorVisible();
@@ -96,8 +97,9 @@ void Messenger::on_actionChange_Name_triggered()
     bool ok;
     QString text = QInputDialog::getText(this, "Change Username", "User name:", QLineEdit::Normal, username, &ok);
     if (ok && !text.isEmpty()) {
-        username = text;
         client.setUsername(username.toStdString());
+        QThread::sleep(1);
+        username = text;
     }
 }
 
