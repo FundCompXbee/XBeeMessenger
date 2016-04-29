@@ -44,7 +44,15 @@ Envelope::Envelope(Envelope&& temp) :
 
 // Equals operator overload
 Envelope& Envelope::operator=(Envelope temp) {
-  swap(temp);
+  try {
+    std::cout << "Envelope: '"+toString()+" isobject = "+(isObject()?"true":"false") << std::endl;
+    swap(temp);
+  }
+  catch (...) {
+    std::cout << "threw exception at '='" << std::endl;
+    throw;
+  }
+
   return *this;
 }
 
@@ -62,7 +70,10 @@ Json::Value& Envelope::operator[](const char* str) {
 void Envelope::swap(Envelope& src) {
   try {
     std::cout << "trying to swap envelope '"+src.toString()+"'" << std::endl;
-    std::cout << "src.getDestination() = '"+src.getDestination()+"'"<<std::endl;
+    if (!src.isObject()) {
+      std::cout << "env is not object, returning" << std::endl;
+      return;
+    }
     Json::Value::swap(src);
   }
   catch (...) {

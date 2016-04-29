@@ -170,6 +170,7 @@ Envelope Client::retrieveEnvelope() {
     try {
       std::cout << "about to convert data to envelope for retrieveEnvelope()" << std::endl;
       response = Envelope(data);
+      std::cout << "response envelope.tostring = '"+response.toString()+"'"<<std::endl;
     }
     catch (...) {
       std::cout << "failed to convert data to envelope for retrieveEnvelope(), throwing" << std::endl;
@@ -178,6 +179,6 @@ Envelope Client::retrieveEnvelope() {
     // std::cout << "  Conversion complete" << std::endl;
       // std::cout << "Response envelope received......" << std::endl;
   }
-  std::cout << "done with retrieveEnvelope" << std::endl;
+  //std::cout << "done with retrieveEnvelope, isObject = '"+( ? "true":"false")+"'"<< std::endl;
   return response;
 }
