@@ -28,11 +28,14 @@ class Messenger : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Messenger(QWidget *parent = 0);
-    ~Messenger();
-    void receiveMessageFunction();
+    explicit Messenger(QWidget *parent = 0); //Constructor
+    ~Messenger();                            //Destructor
+
+    void receiveMessageFunction();           //function the receives messages and runs
+                                             //concurrently in a separate thread
 
 private slots:
+    //functions that respond to signals(mouse-clicks) from the user
     void on_sendButton_clicked();
     void on_channelsListWidget_clicked(const QModelIndex &index);
     void on_actionChange_Name_triggered();
@@ -41,11 +44,11 @@ private slots:
 
 private:
     Ui::Messenger *ui;
-    QString msgString;
-    QString username;
-    QString currentChannel;
-    Client client; 
-    bool connected;
+    QString msgString;      //stores the message to be sent
+    QString username;       //stores the username
+    QString currentChannel; //keeps track of the current or active channel
+    Client client;          //composed object which has functions to interact with the server
+    bool connected;         //boolean used as condition for running the separate thread
 };
 
 #endif // MESSENGER_H

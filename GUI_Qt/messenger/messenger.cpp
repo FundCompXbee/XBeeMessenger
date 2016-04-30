@@ -8,13 +8,17 @@
 Messenger::Messenger(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Messenger),
-    username("conrad"),
+    username("default"),
     currentChannel("server"),
     client(username.toStdString(), 38400)
 {
+    //First initialize ui
     ui->setupUi(this);
+
+    //display title for list of channels
     ui->channelsTextBrowser->textCursor().insertText("Channels: \n");
 
+    //ping for available servers
     std::string servers;
     bool badmessage = true;
 
@@ -28,6 +32,7 @@ Messenger::Messenger(QWidget *parent) :
         }
     }
 
+    //display a dialog box asking user to choose a server
     bool ok;
     QString text = QInputDialog::getText(this, "Connect to Server", QString::fromStdString("Available Servers: " + servers),
                                          QLineEdit::Normal, "", &ok);
@@ -44,9 +49,10 @@ Messenger::Messenger(QWidget *parent) :
         }
     }
 
+    //"connected" must be true for the separate thread initialized below to recieve messages
     connected = true;
 
-    //start concurrent thread that checks for new messages on GUI startup
+    //start concurrent thread that checks for new messages
     extern void receiveMessageFuntion();
     QFuture<void> future = QtConcurrent::run(this, &Messenger::receiveMessageFunction);
 }
@@ -54,13 +60,16 @@ Messenger::Messenger(QWidget *parent) :
 //Deconstructor
 Messenger::~Messenger()
 {
-    //leave channels
-    //and disconnect from server
     std::cout << "destructing GUI" << std::endl;
 
+    //leave channels
+    //and disconnect from server
     client.disconnectServer();
-      connected = false;
-    //client.retrieveEnvelope();
+
+    //set "connected" to false so that the separate thread stops running
+    connected = false;
+
+    //finally actually destroy the GUI
     delete ui;
 }
 
@@ -70,6 +79,7 @@ void Messenger::on_sendButton_clicked()
     //Get the string that the user typed into the text edit box
     msgString = ui->inputText->toPlainText();
 
+    //send the string to server with destination:currentChannel
     client.sendExpression(currentChannel.toStdString(), "MSG "+ msgString.toStdString());
 
     //Remove the user's message from the text edit box at the bottom
@@ -81,17 +91,23 @@ void Messenger::receiveMessageFunction()
 {
     bool isServer;
     bool isActiveChannel;
+
+    //Runs forever until "connected" becomes false, which doesn't happen until deconstruction of the GUI
     while (connected) {
+        //instantiate an envelope object in which to recieve the message or transmission
         Envelope envelope;
+
         try {
             envelope = client.retrieveEnvelope();
         } catch(...) {
             continue;
         }
 
+        //filter envelops based on destination and sender.
         isServer = (envelope.getSender() == "server");
         isActiveChannel = (envelope.getDestination() == currentChannel.toStdString());
 
+        //only display messages in the message window that are intended for the active channel, "currentChannel"
         if (isActiveChannel) {
             //Set text colors and display username followed by message
             ui->messageView->setTextColor(QColor("#73A7E2"));
@@ -99,11 +115,14 @@ void Messenger::receiveMessageFunction()
             ui->messageView->textCursor().insertText(":   ");
             ui->messageView->setTextColor(QColor("#EAE2D2"));
             ui->messageView->textCursor().insertText(QString::fromStdString(envelope.getExpression()));
-            ui->messageView->textCursor().insertText("\n");
-        } else if (isServer) {
+            ui->messageView->textCursor().insertText("\n");            
+        }
+        //if messages are from the server, then display them in an informational panel on the right side of the window
+        else if (isServer) {
             ui->helpTextBrowser->textCursor().insertText(QString::fromStdString(envelope.getExpression()));
             ui->helpTextBrowser->textCursor().insertText("\n\n");
         }
+
         //Make sure that the message view scrolls to the bottom
         ui->messageView->ensureCursorVisible();
     }
@@ -111,6 +130,7 @@ void Messenger::receiveMessageFunction()
     std::cout << "End of concurrent thread" << std::endl;
 }
 
+//Change the active channel, when a channel is selected from the list on the left
 void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 {
     currentChannel = ui->channelsListWidget->selectedItems()[0]->text();
@@ -126,9 +146,12 @@ void Messenger::on_channelsListWidget_clicked(const QModelIndex &index)
 //Change name command
 void Messenger::on_actionChange_Name_triggered()
 {
+    //display a dialog box to ask the user for a username
     bool ok;
     QString text = QInputDialog::getText(this, "Change Username", "User name:", QLineEdit::Normal, username, &ok);
+
     if (ok && !text.isEmpty()) {
+        //call function which sends request to the server to change username
         client.setUsername(text.toStdString());
         QThread::sleep(1);
         username = text;
@@ -138,21 +161,26 @@ void Messenger::on_actionChange_Name_triggered()
 //Join channel command
 void Messenger::on_actionJoin_Channel_triggered()
 {
+    //display dialog box to ask user for name of channel to join
     bool ok;
     QString text = QInputDialog::getText(this, "Join Channel", "Join channel: ", QLineEdit::Normal, "", &ok);
 
     if (ok && !text.isEmpty()) {
+        //call function that sends JOINCHANNEL command to the server
         client.joinChannel(text.toStdString());
         ui->channelsListWidget->addItem(text);
     }
 }
 
+//Create channel command
 void Messenger::on_actionCreate_Channel_triggered()
 {
+    //display dialog box to ask user for name of channel to create
     bool ok;
     QString text = QInputDialog::getText(this, "Create Channel", "Create channel: ", QLineEdit::Normal, "", &ok);
 
     if (ok && !text.isEmpty()) {
+        //call function that sends CREATECHANNEL command
         client.createChannel(text.toStdString());
         ui->channelsListWidget->addItem(text);
     }
